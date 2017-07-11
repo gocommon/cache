@@ -15,7 +15,7 @@ func (c *TagCache) Set(key string, val interface{}) error {
 
 // Get Get
 func (c *TagCache) Get(key string, val interface{}) error {
-	d, err := c.cache.Get(c.taggedItemKey(key))
+	err := c.cache.Get(c.taggedItemKey(key), val)
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func (c *TagCache) Get(key string, val interface{}) error {
 
 // Forever Forever
 func (c *TagCache) Forever(key string, val interface{}) error {
-	d, err := c.cache.Forever(c.taggedItemKey(key), val)
+	err := c.cache.Forever(c.taggedItemKey(key), val)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (c *TagCache) Forever(key string, val interface{}) error {
 
 // Del Del
 func (c *TagCache) Del(key string) error {
-	d, err := c.cache.Del(c.taggedItemKey(key))
+	err := c.cache.Del(c.taggedItemKey(key))
 	if err != nil {
 		return err
 	}

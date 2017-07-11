@@ -12,9 +12,12 @@ type Store struct {
 }
 
 // NewStore NewStore
-func NewStore(opts Options) *Store {
+func NewStore(opts ...Options) *Store {
 	options := Options{}
 
+	if len(opts) > 0 {
+		options = opts[0]
+	}
 	options = defaultOptions(options)
 
 	return &Store{

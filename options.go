@@ -11,6 +11,7 @@ type Options struct {
 	TTL    int64
 	Store  storer.Storer
 	Codec  codec.Codec
+	TagTTL int64
 }
 
 // Option Option
@@ -19,6 +20,10 @@ type Option func(*Options)
 func defaultOptions(opts *Options) *Options {
 	if opts.TTL == 0 {
 		opts.TTL = 3600
+	}
+
+	if opts.TagTTL == 0 {
+		opts.TagTTL = -1
 	}
 
 	if len(opts.Prefix) == 0 {
@@ -47,6 +52,13 @@ func Prefix(s string) Option {
 func TTL(t int64) Option {
 	return func(o *Options) {
 		o.TTL = t
+	}
+}
+
+// TagTTL TagTTL
+func TagTTL(t int64) Option {
+	return func(o *Options) {
+		o.TagTTL = t
 	}
 }
 

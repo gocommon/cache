@@ -1,6 +1,6 @@
 package cache
 
-// Cache Cache
+// Cacher Cacher
 type Cacher interface {
 	Set(key string, val interface{}) error
 	Get(key string, val interface{}) error
@@ -13,4 +13,5 @@ type TagCacher interface {
 	Cacher
 	Tags(tags []string) Cacher
 	TagID(tag string) string
+	Flush(tags []string) error
 }

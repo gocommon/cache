@@ -32,7 +32,6 @@ func (s *TagSet) Reset() error {
 // TagID get tag id
 func (s *TagSet) TagID(name string) string {
 	id, _ := s.opts.Store.Get(s.TagKey(name))
-
 	if len(id) == 0 {
 		return s.ResetTag(name)
 	}
@@ -70,7 +69,12 @@ func (s *TagSet) GetNamespace() string {
 // ResetTag ResetTag
 func (s *TagSet) ResetTag(name string) string {
 	ver := strconv.FormatInt(time.Now().UnixNano(), 10)
-	s.opts.Store.Forever(s.TagKey(name), ver)
+	if s.opts.TagTTL > 0 {
+		s.opts.Store.Set(s.TagKey(name), ver, s.opts.TagTTL)
+	} else {
+		s.opts.Store.Forever(s.TagKey(name), ver)
+	}
+
 	return ver
 }
 

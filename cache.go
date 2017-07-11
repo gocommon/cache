@@ -8,7 +8,7 @@ type Cache struct {
 }
 
 // NewCache NewCache
-func NewCache(opts ...Option) Cacher {
+func NewCache(opts ...Option) TagCacher {
 	options := &Options{}
 	for i := range opts {
 		opts[i](options)
@@ -37,12 +37,12 @@ func (c *Cache) Set(key string, val interface{}) error {
 		}
 	}
 
-	return c.opts.Store.Set(keyWithPrefix(key), d, c.opts.TTL)
+	return c.opts.Store.Set(c.keyWithPrefix(key), d, c.opts.TTL)
 }
 
 // Get Get
 func (c *Cache) Get(key string, val interface{}) error {
-	d, err := c.opts.Store.Get(keyWithPrefix(key))
+	d, err := c.opts.Store.Get(c.keyWithPrefix(key))
 	if err != nil {
 		return err
 	}
@@ -65,13 +65,13 @@ func (c *Cache) Forever(key string, val interface{}) error {
 			return err
 		}
 	}
-	return c.opts.Store.Forever(keyWithPrefix(key), d)
+	return c.opts.Store.Forever(c.keyWithPrefix(key), d)
 
 }
 
 // Del Del
 func (c *Cache) Del(key string) error {
-	return c.opts.Store.Del(keyWithPrefix(key))
+	return c.opts.Store.Del(c.keyWithPrefix(key))
 
 }
 
@@ -86,4 +86,14 @@ func (c *Cache) Tags(tags []string) Cacher {
 // TagID TagID
 func (c *Cache) TagID(tag string) string {
 	return (&TagSet{names: []string{}, opts: c.opts}).TagID(tag)
+}
+
+// Flush Flush
+func (c *Cache) Flush(tags []string) error {
+	tagSet := &TagSet{names: []string{}, opts: c.opts}
+	for i := range tags {
+		tagSet.ResetTag(tags[i])
+	}
+
+	return nil
 }
