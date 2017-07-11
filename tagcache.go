@@ -1,5 +1,7 @@
 package cache
 
+var _ Cacher = &TagCache{}
+
 // TagCache Cache
 type TagCache struct {
 	tagSet *TagSet
@@ -13,18 +15,33 @@ func (c *TagCache) Set(key string, val interface{}) error {
 
 // Get Get
 func (c *TagCache) Get(key string, val interface{}) error {
+	d, err := c.cache.Get(c.taggedItemKey(key))
+	if err != nil {
+		return err
+	}
+
 	return nil
 
 }
 
 // Forever Forever
 func (c *TagCache) Forever(key string, val interface{}) error {
+	d, err := c.cache.Forever(c.taggedItemKey(key), val)
+	if err != nil {
+		return err
+	}
+
 	return nil
 
 }
 
 // Del Del
 func (c *TagCache) Del(key string) error {
+	d, err := c.cache.Del(c.taggedItemKey(key))
+	if err != nil {
+		return err
+	}
+
 	return nil
 
 }
