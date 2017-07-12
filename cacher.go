@@ -18,5 +18,5 @@ type TagCacher interface {
 	Tags(tags []string) Cacher
 	TagID(tag string) string
 	Flush(tags []string) error
-	locker.Locker
+	NewLocker(key string) locker.Funcer
 }

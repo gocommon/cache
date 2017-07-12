@@ -7,4 +7,5 @@ type Storer interface {
 	Expire(key string, ttl int64) error
 	Forever(key string, val string) error
 	Del(key string) error
+	NewWithConf(jsonconf string) error
 }

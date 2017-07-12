@@ -1,6 +1,7 @@
 package locker
 
 import (
+	"encoding/json"
 	"time"
 
 	redigo "github.com/garyburd/redigo/redis"
@@ -27,6 +28,27 @@ func NewRedisLocker(opts ...RedisOptions) *RedisLocker {
 	redsync := redsync.New([]redsync.Pool{pool})
 
 	return &RedisLocker{redsync: redsync, opts: options}
+}
+
+// NewWithConf NewWithConf
+func (l *RedisLocker) NewWithConf(jsonconf string) error {
+	var options RedisOptions
+
+	err := json.Unmarshal([]byte(jsonconf), &options)
+	if err != nil {
+		return err
+	}
+
+	options = defaultOptions(options)
+
+	pool := newRedisPool(options)
+
+	redsync := redsync.New([]redsync.Pool{pool})
+
+	l.redsync = redsync
+	l.opts = options
+
+	return nil
 }
 
 // NewLocker NewLocker

@@ -1,6 +1,7 @@
 package storer
 
 import (
+	"encoding/json"
 	"time"
 
 	redigo "github.com/garyburd/redigo/redis"
@@ -23,6 +24,21 @@ func NewRedisStore(opts ...RedisOptions) *RedisStore {
 	return &RedisStore{
 		pool: newRedisPool(options),
 	}
+}
+
+// NewWithConf NewWithConf
+func (s *RedisStore) NewWithConf(jsonconf string) error {
+	var options RedisOptions
+	err := json.Unmarshal([]byte(jsonconf), &options)
+	if err != nil {
+		return err
+	}
+
+	options = defaultRedisOptions(options)
+
+	s.pool = newRedisPool(options)
+
+	return nil
 }
 
 func (s *RedisStore) do(commandName string, args ...interface{}) (reply interface{}, err error) {

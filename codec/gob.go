@@ -13,6 +13,11 @@ func NewGobCodec() *GobCodec {
 	return &GobCodec{}
 }
 
+// NewWithConf NewWithConf
+func (c *GobCodec) NewWithConf(jsonconf string) error {
+	return nil
+}
+
 // Encode Encode
 func (c *GobCodec) Encode(v interface{}) (string, error) {
 	var buf bytes.Buffer

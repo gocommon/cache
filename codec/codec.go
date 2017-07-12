@@ -4,4 +4,5 @@ package codec
 type Codec interface {
 	Encode(v interface{}) (string, error)
 	Decode(data string, v interface{}) error
+	NewWithConf(jsonconf string) error
 }
