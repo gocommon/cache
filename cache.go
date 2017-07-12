@@ -111,5 +111,8 @@ func (c *Cache) Flush(tags []string) error {
 
 // NewLocker NewLocker
 func (c *Cache) NewLocker(key string) locker.Funcer {
+	if c.opts.Locker == nil {
+		return NewErrLocker().NewLocker()
+	}
 	return c.opts.Locker.NewLocker(c.keyWithPrefix(key))
 }

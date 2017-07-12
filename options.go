@@ -8,12 +8,13 @@ import (
 
 // Options Options
 type Options struct {
-	Prefix string
-	TTL    int64
-	Store  storer.Storer
-	Codec  codec.Codec
-	Locker locker.Locker
-	TagTTL int64
+	Prefix    string
+	TTL       int64
+	Store     storer.Storer
+	Codec     codec.Codec
+	Locker    locker.Locker
+	TagTTL    int64
+	UseLocker bool
 }
 
 // Option Option
@@ -40,7 +41,7 @@ func defaultOptions(opts *Options) *Options {
 		opts.Codec = codec.DefaultCodec
 	}
 
-	if opts.Locker == nil {
+	if opts.Locker == nil && opts.UseLocker {
 		opts.Locker = locker.DefaultLocker
 	}
 
@@ -86,5 +87,12 @@ func Store(s storer.Storer) Option {
 func Codec(s codec.Codec) Option {
 	return func(o *Options) {
 		o.Codec = s
+	}
+}
+
+// UseLocker UseLocker
+func UseLocker(use bool) Option {
+	return func(o *Options) {
+		o.UseLocker = use
 	}
 }
