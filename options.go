@@ -2,6 +2,7 @@ package cache
 
 import (
 	"github.com/gocommon/cache/codec"
+	"github.com/gocommon/cache/locker"
 	"github.com/gocommon/cache/storer"
 )
 
@@ -11,6 +12,7 @@ type Options struct {
 	TTL    int64
 	Store  storer.Storer
 	Codec  codec.Codec
+	Locker locker.Locker
 	TagTTL int64
 }
 
@@ -36,6 +38,10 @@ func defaultOptions(opts *Options) *Options {
 
 	if opts.Codec == nil {
 		opts.Codec = codec.DefaultCodec
+	}
+
+	if opts.Locker == nil {
+		opts.Locker = locker.DefaultLocker
 	}
 
 	return opts

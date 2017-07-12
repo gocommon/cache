@@ -1,7 +1,7 @@
-package redis
+package locker
 
 // Options Options
-type Options struct {
+type RedisOptions struct {
 	Addr        string
 	Passwd      string
 	SelectDB    int
@@ -9,7 +9,7 @@ type Options struct {
 	IdleTimeout int
 }
 
-func defaultOptions(opts Options) Options {
+func defaultOptions(opts RedisOptions) RedisOptions {
 	if len(opts.Addr) == 0 {
 		opts.Addr = "127.0.0.1:6379"
 	}

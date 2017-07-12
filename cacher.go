@@ -1,5 +1,9 @@
 package cache
 
+import (
+	"github.com/gocommon/cache/locker"
+)
+
 // Cacher Cacher
 type Cacher interface {
 	Set(key string, val interface{}) error
@@ -14,4 +18,5 @@ type TagCacher interface {
 	Tags(tags []string) Cacher
 	TagID(tag string) string
 	Flush(tags []string) error
+	locker.Locker
 }

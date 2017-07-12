@@ -1,5 +1,9 @@
 package cache
 
+import (
+	"github.com/gocommon/cache/locker"
+)
+
 var _ TagCacher = &Cache{}
 
 // Cache Cache
@@ -103,4 +107,9 @@ func (c *Cache) Flush(tags []string) error {
 	}
 
 	return nil
+}
+
+// NewLocker NewLocker
+func (c *Cache) NewLocker(key string) locker.Funcer {
+	return c.opts.Locker.NewLocker(key)
 }
