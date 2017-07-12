@@ -29,7 +29,8 @@ func (c *Cache) keyWithPrefix(key string) string {
 // Set Set
 func (c *Cache) Set(key string, val interface{}) error {
 	d := EmptyValue
-	if val != nil {
+
+	if !IsNil(val) {
 		var err error
 		d, err = c.opts.Codec.Encode(val)
 		if err != nil {
@@ -47,8 +48,14 @@ func (c *Cache) Get(key string, val interface{}) error {
 		return err
 	}
 
-	if d == EmptyValue {
+	if len(d) == 0 {
 		return ErrNil
+	}
+
+	if d == EmptyValue {
+		SetNil(val)
+		return nil
+
 	}
 
 	return c.opts.Codec.Decode(d, val)
@@ -58,7 +65,7 @@ func (c *Cache) Get(key string, val interface{}) error {
 // Forever Forever
 func (c *Cache) Forever(key string, val interface{}) error {
 	d := EmptyValue
-	if val != nil {
+	if !IsNil(val) {
 		var err error
 		d, err = c.opts.Codec.Encode(val)
 		if err != nil {

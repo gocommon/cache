@@ -43,7 +43,15 @@ func (s *Store) Set(key string, val string, ttl int64) error {
 
 // Get Get
 func (s *Store) Get(key string) (string, error) {
-	return redigo.String(s.do("GET", key))
+	ret, err := redigo.String(s.do("GET", key))
+	if err != nil {
+		if err == redigo.ErrNil {
+			return "", nil
+		}
+		return "", err
+	}
+
+	return ret, nil
 }
 
 // Expire Expire

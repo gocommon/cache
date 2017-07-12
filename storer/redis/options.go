@@ -11,7 +11,7 @@ type Options struct {
 
 func defaultOptions(opts Options) Options {
 	if len(opts.Addr) == 0 {
-		opts.Addr = "localhost:6379"
+		opts.Addr = "127.0.0.1:6379"
 	}
 
 	if opts.MaxIdle == 0 {
