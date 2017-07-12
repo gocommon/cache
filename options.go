@@ -62,6 +62,13 @@ func TagTTL(t int64) Option {
 	}
 }
 
+// ForeverTagTTL ForeverTagTTL
+func ForeverTagTTL() Option {
+	return func(o *Options) {
+		o.TagTTL = -1
+	}
+}
+
 // Store Store
 func Store(s storer.Storer) Option {
 	return func(o *Options) {
