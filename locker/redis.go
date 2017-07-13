@@ -11,42 +11,47 @@ import (
 // RedisLocker RedisLocker
 type RedisLocker struct {
 	redsync *redsync.Redsync
-	opts    RedisOptions
 }
 
 // NewRedisLocker NewRedisLocker
-func NewRedisLocker(opts ...RedisOptions) *RedisLocker {
-	options := RedisOptions{}
+func NewRedisLocker(opts ...[]RedisOptions) *RedisLocker {
+	options := []RedisOptions{}
 
 	if len(opts) > 0 {
 		options = opts[0]
 	}
-	options = defaultOptions(options)
 
-	pool := newRedisPool(options)
+	pools := make([]redsync.Pool, len(options))
 
-	redsync := redsync.New([]redsync.Pool{pool})
+	for i := 0; i < len(options); i++ {
 
-	return &RedisLocker{redsync: redsync, opts: options}
+		pools[i] = newRedisPool(defaultRedisOptions(options[i]))
+	}
+
+	redsync := redsync.New(pools)
+
+	return &RedisLocker{redsync: redsync}
 }
 
 // NewWithConf NewWithConf
 func (l *RedisLocker) NewWithConf(jsonconf string) error {
-	var options RedisOptions
+	var options []RedisOptions
 
 	err := json.Unmarshal([]byte(jsonconf), &options)
 	if err != nil {
 		return err
 	}
 
-	options = defaultOptions(options)
+	pools := make([]redsync.Pool, len(options))
 
-	pool := newRedisPool(options)
+	for i := 0; i < len(options); i++ {
 
-	redsync := redsync.New([]redsync.Pool{pool})
+		pools[i] = newRedisPool(defaultRedisOptions(options[i]))
+	}
+
+	redsync := redsync.New(pools)
 
 	l.redsync = redsync
-	l.opts = options
 
 	return nil
 }

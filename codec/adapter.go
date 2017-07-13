@@ -1,24 +1,24 @@
-package storer
+package codec
 
 import (
 	"strings"
 )
 
 // Adapter Adapter
-var Adapter = map[string]Storer{}
+var Adapter = map[string]Codec{}
 
 // Register Register
-func Register(name string, s Storer) {
+func Register(name string, s Codec) {
 	name = strings.ToLower(name)
 	Adapter[name] = s
 }
 
 // NewWithAdapter NewWithAdapter
-func NewWithAdapter(name, jsonconf string) Storer {
+func NewWithAdapter(name, jsonconf string) Codec {
 	name = strings.ToLower(name)
 	s, ok := Adapter[name]
 	if !ok {
-		return NewErrStorer(ErrStorerNotFound)
+		return NewErrStorer(ErrCodeNotFound)
 	}
 
 	err := s.NewWithConf(jsonconf)

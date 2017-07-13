@@ -1,8 +1,6 @@
 package cache
 
 import (
-	"strings"
-
 	"github.com/gocommon/cache/codec"
 	"github.com/gocommon/cache/locker"
 	"github.com/gocommon/cache/storer"
@@ -25,24 +23,19 @@ type Conf struct {
 	LockerAdapterConfig string
 }
 
+// NewCacheWithConf NewCacheWithConf
 func NewCacheWithConf(conf Conf) TagCacher {
-	opts := &Options{}
-	opts.Prefix = opts.Prefix
-	opts.TagTTL = opts.TagTTL
-	opts.TTL = opts.TTL
+	opts := Options{}
+	opts.Prefix = conf.Prefix
+	opts.TagTTL = conf.TagTTL
+	opts.TTL = conf.TTL
 
-}
+	opts.Store = storer.NewWithAdapter(conf.StoreAdapter, conf.StoreAdapterConfig)
+	opts.Locker = locker.NewWithAdapter(conf.LockerAdapter, conf.LockerAdapterConfig)
+	opts.Codec = codec.NewWithAdapter(conf.CodecAdapter, conf.CodecAdapterConfig)
 
-func StoreAdapter(name, jsonconf string) storer.Storer {
-	switch strings.ToLower(name) {
+	opts.UseLocker = conf.UseLocker
 
-	}
-}
-
-func LockerAdapter(name, jsonconf string) locker.Locker {
-
-}
-
-func CodecAdapter(name, jsonconf string) codec.Codec {
+	return NewWithOptions(opts)
 
 }

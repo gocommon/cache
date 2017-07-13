@@ -26,6 +26,16 @@ func NewCache(opts ...Option) TagCacher {
 
 }
 
+// NewWithOptions NewWithOptions
+func NewWithOptions(opts Options) TagCacher {
+
+	options := defaultOptions(&opts)
+
+	return &Cache{
+		opts: options,
+	}
+}
+
 func (c *Cache) keyWithPrefix(key string) string {
 	return c.opts.Prefix + key
 }
