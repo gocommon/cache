@@ -14,13 +14,8 @@ func (c *TagCache) Set(key string, val interface{}) error {
 }
 
 // Get Get
-func (c *TagCache) Get(key string, val interface{}) error {
-	err := c.cache.Get(c.taggedItemKey(key), val)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (c *TagCache) Get(key string, val interface{}) (bool, error) {
+	return c.cache.Get(c.taggedItemKey(key), val)
 
 }
 

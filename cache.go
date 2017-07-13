@@ -56,23 +56,23 @@ func (c *Cache) Set(key string, val interface{}) error {
 }
 
 // Get Get
-func (c *Cache) Get(key string, val interface{}) error {
+func (c *Cache) Get(key string, val interface{}) (has bool, err error) {
 	d, err := c.opts.Store.Get(c.keyWithPrefix(key))
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if len(d) == 0 {
-		return ErrNil
+		return false, nil
 	}
 
 	if d == EmptyValue {
 		SetNil(val)
-		return nil
+		return true, nil
 
 	}
 
-	return c.opts.Codec.Decode(d, val)
+	return true, c.opts.Codec.Decode(d, val)
 
 }
 
