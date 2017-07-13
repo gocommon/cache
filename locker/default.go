@@ -2,5 +2,5 @@ package locker
 
 var (
 	// DefaultLocker DefaultLocker
-	DefaultLocker = NewRedisLocker()
+	DefaultLocker = NewRedisLocker([]RedisOptions{RedisOptions{}})
 )

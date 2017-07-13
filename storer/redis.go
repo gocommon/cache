@@ -48,7 +48,7 @@ func (s *RedisStore) do(commandName string, args ...interface{}) (reply interfac
 }
 
 // Set Set
-func (s *RedisStore) Set(key string, val string, ttl int64) error {
+func (s *RedisStore) Set(key string, val []byte, ttl int64) error {
 	_, err := s.do("SETEX", key, ttl, val)
 	if err != nil {
 		return err
@@ -58,13 +58,13 @@ func (s *RedisStore) Set(key string, val string, ttl int64) error {
 }
 
 // Get Get
-func (s *RedisStore) Get(key string) (string, error) {
-	ret, err := redigo.String(s.do("GET", key))
+func (s *RedisStore) Get(key string) ([]byte, error) {
+	ret, err := redigo.Bytes(s.do("GET", key))
 	if err != nil {
 		if err == redigo.ErrNil {
-			return "", nil
+			return nil, nil
 		}
-		return "", err
+		return nil, err
 	}
 
 	return ret, nil
@@ -81,7 +81,7 @@ func (s *RedisStore) Expire(key string, ttl int64) error {
 }
 
 // Forever Forever
-func (s *RedisStore) Forever(key string, val string) error {
+func (s *RedisStore) Forever(key string, val []byte) error {
 	_, err := s.do("SET", key, val)
 	if err != nil {
 		return err

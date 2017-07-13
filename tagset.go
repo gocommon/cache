@@ -36,7 +36,7 @@ func (s *TagSet) TagID(name string) string {
 		return s.ResetTag(name)
 	}
 
-	return id
+	return string(id)
 }
 
 // TagIDs TagIDs get all tag ids
@@ -70,9 +70,9 @@ func (s *TagSet) GetNamespace() string {
 func (s *TagSet) ResetTag(name string) string {
 	ver := strconv.FormatInt(time.Now().UnixNano(), 10)
 	if s.opts.TagTTL > 0 {
-		s.opts.Store.Set(s.TagKey(name), ver, s.opts.TagTTL)
+		s.opts.Store.Set(s.TagKey(name), []byte(ver), s.opts.TagTTL)
 	} else {
-		s.opts.Store.Forever(s.TagKey(name), ver)
+		s.opts.Store.Forever(s.TagKey(name), []byte(ver))
 	}
 
 	return ver

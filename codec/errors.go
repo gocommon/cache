@@ -20,13 +20,13 @@ func NewErrStorer(err error) *ErrCodec {
 }
 
 // Encode Encode
-func (e *ErrCodec) Encode(v interface{}) (string, error) {
-	return "", e.err
+func (e *ErrCodec) Encode(v interface{}) ([]byte, error) {
+	return nil, e.err
 
 }
 
 // Decode Decode
-func (e *ErrCodec) Decode(data string, v interface{}) error {
+func (e *ErrCodec) Decode(data []byte, v interface{}) error {
 	return e.err
 
 }

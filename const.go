@@ -1,4 +1,4 @@
 package cache
 
 // EmptyValue EmptyValue
-const EmptyValue = "##empty- -!##"
+var EmptyValue = []byte("##empty- -!##")

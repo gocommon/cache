@@ -2,7 +2,7 @@ package codec
 
 // Codec Codec
 type Codec interface {
-	Encode(v interface{}) (string, error)
-	Decode(data string, v interface{}) error
+	Encode(v interface{}) ([]byte, error)
+	Decode(data []byte, v interface{}) error
 	NewWithConf(jsonconf string) error
 }

@@ -10,6 +10,7 @@ import (
 type Options struct {
 	Prefix    string
 	TTL       int64
+	TouchTTL  int64
 	Store     storer.Storer
 	Codec     codec.Codec
 	Locker    locker.Locker
@@ -27,6 +28,10 @@ func defaultOptions(opts *Options) *Options {
 
 	if opts.TagTTL == 0 {
 		opts.TagTTL = -1
+	}
+
+	if opts.TouchTTL == 0 {
+		opts.TouchTTL = 3600
 	}
 
 	if len(opts.Prefix) == 0 {

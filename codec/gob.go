@@ -19,20 +19,20 @@ func (c *GobCodec) NewWithConf(jsonconf string) error {
 }
 
 // Encode Encode
-func (c *GobCodec) Encode(v interface{}) (string, error) {
+func (c *GobCodec) Encode(v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	err := enc.Encode(v)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return buf.String(), nil
+	return buf.Bytes(), nil
 }
 
 // Decode Decode
-func (c *GobCodec) Decode(data string, v interface{}) error {
-	r := bytes.NewReader([]byte(data))
+func (c *GobCodec) Decode(data []byte, v interface{}) error {
+	r := bytes.NewReader(data)
 	dec := gob.NewDecoder(r)
 
 	return dec.Decode(v)

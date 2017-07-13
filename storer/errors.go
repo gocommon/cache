@@ -13,19 +13,20 @@ type ErrStorer struct {
 	err error
 }
 
+// NewErrStorer NewErrStorer
 func NewErrStorer(err error) *ErrStorer {
 	return &ErrStorer{err}
 }
 
 // Set Set
-func (e *ErrStorer) Set(key string, val string, ttl int64) error {
+func (e *ErrStorer) Set(key string, val []byte, ttl int64) error {
 	return e.err
 
 }
 
 // Get Get
-func (e *ErrStorer) Get(key string) (string, error) {
-	return "", e.err
+func (e *ErrStorer) Get(key string) ([]byte, error) {
+	return nil, e.err
 
 }
 
@@ -36,7 +37,7 @@ func (e *ErrStorer) Expire(key string, ttl int64) error {
 }
 
 // Forever Forever
-func (e *ErrStorer) Forever(key string, val string) error {
+func (e *ErrStorer) Forever(key string, val []byte) error {
 	return e.err
 
 }
