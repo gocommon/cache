@@ -68,7 +68,7 @@ func (s *TagSet) GetNamespace() string {
 
 // ResetTag ResetTag
 func (s *TagSet) ResetTag(name string) string {
-	ver := strconv.FormatInt(time.Now().UnixNano(), 10)
+	ver := strconv.FormatInt(time.Now().UnixNano(), 36)
 	if s.opts.TagTTL > 0 {
 		s.opts.Store.Set(s.TagKey(name), []byte(ver), s.opts.TagTTL)
 	} else {
