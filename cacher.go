@@ -23,4 +23,5 @@ type TagCacher interface {
 	Del(key string) error
 	Flush() error
 	TagID(tag string) string
+	SetTags(tags ...string)
 }

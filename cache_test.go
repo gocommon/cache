@@ -26,6 +26,13 @@ package cache
 // func TestCache(t *testing.T) {
 // 	var err error
 
+// 	// f, err := os.Create("cpu-profile.prof")
+// 	// if err != nil {
+// 	// 	log.Fatal(err)
+// 	// }
+
+// 	// pprof.StartCPUProfile(f)
+
 // 	testUser := &TestUser{1, "weisd"}
 
 // 	c := NewCache()
@@ -37,13 +44,17 @@ package cache
 
 // 	key := getTestUserInfoKey(testUser.ID)
 
+// 	// start := time.Now()
+
+// 	// for i := 0; i < 1000; i++ {
+
 // 	err = c.Tags(tags...).Set(key, testUser)
 // 	if err != nil {
 // 		t.Fatal(err)
 // 		return
 // 	}
 
-// 	t.Log("tagid", c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
+// 	// t.Log("tagid", c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
 // 	// ret := &testUser
 // 	var ret *TestUser
@@ -59,9 +70,8 @@ package cache
 // 		return
 // 	}
 
-// 	t.Log("set.get pass", ret, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
+// 	// t.Log("set.get pass", ret, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
-// 	// flush
 // 	c.Tags(getTestUserInfoTag(testUser.ID)).Flush()
 
 // 	var ret1 *TestUser
@@ -79,7 +89,7 @@ package cache
 // 		return
 // 	}
 
-// 	t.Log("get flush pass", ret1, ret1 == nil, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
+// 	// t.Log("get flush pass", ret1, ret1 == nil, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
 // 	// test set nil
 // 	retnil := &TestUser{}
@@ -90,7 +100,7 @@ package cache
 // 		t.Fatal(err)
 // 	}
 
-// 	t.Log("tagid", c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
+// 	// t.Log("tagid", c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
 // 	// ret2 := &TestUser{}
 
@@ -108,5 +118,10 @@ package cache
 // 	}
 
 // 	t.Log("tags.Get nil pass", ret2, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
+// 	// }
+
+// 	// fmt.Println("end use ", time.Now().Sub(start))
+
+// 	// pprof.StopCPUProfile()
 
 // }

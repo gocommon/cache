@@ -12,27 +12,55 @@ var _ TagCacher = &TagCache{}
 
 // TagCache Cache
 type TagCache struct {
-	cache Cacher
+	cache *Cache
 	names []string
+}
+
+// SetTags SetTags
+func (c *TagCache) SetTags(tags ...string) {
+	c.names = tags
 }
 
 // Set Set
 func (c *TagCache) Set(key string, val interface{}) error {
-	return c.cache.Set(c.taggedItemKey(key), val)
+
+	err := c.cache.Set(c.taggedItemKey(key), val)
+	if err != nil {
+		c.cache.ReleaseTagCache(c)
+		return err
+	}
+
+	c.cache.ReleaseTagCache(c)
+
+	return nil
+
 }
 
 // Get Get
 func (c *TagCache) Get(key string, val interface{}) (bool, error) {
-	return c.cache.Get(c.taggedItemKey(key), val)
+
+	has, err := c.cache.Get(c.taggedItemKey(key), val)
+	if err != nil {
+		c.cache.ReleaseTagCache(c)
+		return false, err
+	}
+
+	c.cache.ReleaseTagCache(c)
+
+	return has, nil
 
 }
 
 // Forever Forever
 func (c *TagCache) Forever(key string, val interface{}) error {
+
 	err := c.cache.Forever(c.taggedItemKey(key), val)
 	if err != nil {
+		c.cache.ReleaseTagCache(c)
 		return err
 	}
+
+	c.cache.ReleaseTagCache(c)
 
 	return nil
 
@@ -40,22 +68,44 @@ func (c *TagCache) Forever(key string, val interface{}) error {
 
 // Del Del
 func (c *TagCache) Del(key string) error {
+
 	err := c.cache.Del(c.taggedItemKey(key))
 	if err != nil {
 		return err
 	}
 
+	c.cache.ReleaseTagCache(c)
+
 	return nil
 
 }
 
+// Flush Flush
 func (c *TagCache) Flush() error {
 	for k := range c.names {
 		c.ResetTag(c.names[k])
 	}
 
+	c.cache.ReleaseTagCache(c)
+
 	return nil
 
+}
+
+// TagID get tag id
+func (c *TagCache) TagID(name string) string {
+
+	var id string
+	idc, _ := c.cache.Options().Store.Get(c.TagKey(name))
+	if len(idc) > 0 {
+		id = string(idc)
+	} else {
+		id = c.ResetTag(name)
+	}
+
+	c.cache.ReleaseTagCache(c)
+
+	return id
 }
 
 // taggedItemKey real store key
@@ -64,16 +114,6 @@ func (c *TagCache) taggedItemKey(key string) string {
 }
 
 //////////// tagSet ///////////
-
-// TagID get tag id
-func (c *TagCache) TagID(name string) string {
-	id, _ := c.cache.Options().Store.Get(c.TagKey(name))
-	if len(id) == 0 {
-		return c.ResetTag(name)
-	}
-
-	return string(id)
-}
 
 // TagIDs TagIDs get all tag ids
 func (c *TagCache) TagIDs() []string {
@@ -99,6 +139,7 @@ func (c *TagCache) GetNamespace() string {
 	if len(ids) == 0 {
 		return ""
 	}
+
 	return strings.Join(ids, "|")
 }
 

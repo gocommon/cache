@@ -2,6 +2,7 @@ package cache
 
 import (
 	"bytes"
+	"sync"
 
 	"time"
 
@@ -13,6 +14,7 @@ var _ Cacher = &Cache{}
 // Cache Cache
 type Cache struct {
 	opts *Options
+	pool sync.Pool
 }
 
 // NewCache NewCache
@@ -24,9 +26,14 @@ func NewCache(opts ...Option) Cacher {
 
 	options = defaultOptions(options)
 
-	return &Cache{
+	c := &Cache{
 		opts: options,
 	}
+	c.pool.New = func() interface{} {
+		return &TagCache{}
+	}
+
+	return c
 
 }
 
@@ -139,10 +146,23 @@ func (c *Cache) Del(key string) error {
 
 // Tags Tags
 func (c *Cache) Tags(tags ...string) TagCacher {
-	return &TagCache{
-		names: tags,
-		cache: c,
+	tc := c.getTagCache()
+	tc.SetTags(tags...)
+	return tc
+}
+
+// GetTagCache GetTagCache
+func (c *Cache) getTagCache() TagCacher {
+	tc := c.pool.Get().(*TagCache)
+	if tc.cache == nil {
+		tc.cache = c
 	}
+	return tc
+}
+
+// ReleaseTagCache ReleaseTagCache
+func (c *Cache) ReleaseTagCache(tc TagCacher) {
+	c.pool.Put(tc)
 }
 
 // Locker Locker
