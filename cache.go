@@ -8,7 +8,7 @@ import (
 	"github.com/gocommon/cache/locker"
 )
 
-var _ TagCacher = &Cache{}
+var _ Cacher = &Cache{}
 
 // Cache Cache
 type Cache struct {
@@ -16,7 +16,7 @@ type Cache struct {
 }
 
 // NewCache NewCache
-func NewCache(opts ...Option) TagCacher {
+func NewCache(opts ...Option) Cacher {
 	options := &Options{}
 	for i := range opts {
 		opts[i](options)
@@ -31,7 +31,7 @@ func NewCache(opts ...Option) TagCacher {
 }
 
 // NewWithOptions NewWithOptions
-func NewWithOptions(opts Options) TagCacher {
+func NewWithOptions(opts Options) Cacher {
 
 	options := defaultOptions(&opts)
 
@@ -138,32 +138,22 @@ func (c *Cache) Del(key string) error {
 }
 
 // Tags Tags
-func (c *Cache) Tags(tags []string) Cacher {
+func (c *Cache) Tags(tags ...string) TagCacher {
 	return &TagCache{
-		tagSet: &TagSet{names: tags, opts: c.opts},
-		cache:  c,
+		names: tags,
+		cache: c,
 	}
 }
 
-// TagID TagID
-func (c *Cache) TagID(tag string) string {
-	return (&TagSet{names: []string{}, opts: c.opts}).TagID(tag)
-}
-
-// Flush Flush
-func (c *Cache) Flush(tags []string) error {
-	tagSet := &TagSet{names: []string{}, opts: c.opts}
-	for i := range tags {
-		tagSet.ResetTag(tags[i])
-	}
-
-	return nil
-}
-
-// NewLocker NewLocker
-func (c *Cache) NewLocker(key string) locker.Funcer {
+// Locker Locker
+func (c *Cache) Locker(key string) locker.Funcer {
 	if c.opts.Locker == nil {
 		return NewErrLocker().NewLocker()
 	}
 	return c.opts.Locker.NewLocker(c.keyWithPrefix(key))
+}
+
+// Options Options
+func (c *Cache) Options() *Options {
+	return c.opts
 }

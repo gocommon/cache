@@ -24,7 +24,7 @@ type Conf struct {
 }
 
 // NewCacheWithConf NewCacheWithConf
-func NewCacheWithConf(conf Conf) TagCacher {
+func NewCacheWithConf(conf Conf) Cacher {
 	opts := Options{}
 	opts.Prefix = conf.Prefix
 	opts.TagTTL = conf.TagTTL

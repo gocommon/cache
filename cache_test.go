@@ -37,17 +37,17 @@ package cache
 
 // 	key := getTestUserInfoKey(testUser.ID)
 
-// 	err = c.Tags(tags).Set(key, testUser)
+// 	err = c.Tags(tags...).Set(key, testUser)
 // 	if err != nil {
 // 		t.Fatal(err)
 // 		return
 // 	}
 
-// 	t.Log("tagid", c.TagID(getTestUserInfoTag(testUser.ID)))
+// 	t.Log("tagid", c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
 // 	// ret := &testUser
 // 	var ret *TestUser
-// 	has, err := c.Tags(tags).Get(key, &ret)
+// 	has, err := c.Tags(tags...).Get(key, &ret)
 // 	if err != nil {
 // 		t.Fatal(err)
 // 		return
@@ -59,14 +59,13 @@ package cache
 // 		return
 // 	}
 
-// 	t.Log("set.get pass", ret, c.TagID(getTestUserInfoTag(testUser.ID)))
+// 	t.Log("set.get pass", ret, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
 // 	// flush
-// 	c.Flush([]string{getTestUserInfoTag(testUser.ID)})
+// 	c.Tags(getTestUserInfoTag(testUser.ID)).Flush()
 
 // 	var ret1 *TestUser
-// 	t.Log("flush get before ", ret1)
-// 	has, err = c.Tags(tags).Get(key, &ret1)
+// 	has, err = c.Tags(tags...).Get(key, &ret1)
 // 	if err != nil {
 // 		t.Fatal(err)
 
@@ -80,24 +79,24 @@ package cache
 // 		return
 // 	}
 
-// 	t.Log("get flush pass", ret1, ret1 == nil, c.TagID(getTestUserInfoTag(testUser.ID)))
+// 	t.Log("get flush pass", ret1, ret1 == nil, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
 // 	// test set nil
 // 	retnil := &TestUser{}
 // 	retnil = nil
 // 	// set nil
-// 	err = c.Tags(tags).Set(key, retnil)
+// 	err = c.Tags(tags...).Set(key, retnil)
 // 	if err != nil {
 // 		t.Fatal(err)
 // 	}
 
-// 	t.Log("tagid", c.TagID(getTestUserInfoTag(testUser.ID)))
+// 	t.Log("tagid", c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
 // 	// ret2 := &TestUser{}
 
 // 	var ret2 *TestUser
 
-// 	has, err = c.Tags(tags).Get(key, &ret2)
+// 	has, err = c.Tags(tags...).Get(key, &ret2)
 // 	if err != nil {
 // 		t.Fatal(err)
 // 	}
@@ -108,6 +107,6 @@ package cache
 // 		return
 // 	}
 
-// 	t.Log("tags.Get nil pass", ret2, c.TagID(getTestUserInfoTag(testUser.ID)))
+// 	t.Log("tags.Get nil pass", ret2, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
 // }
