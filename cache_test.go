@@ -26,13 +26,6 @@ package cache
 // func TestCache(t *testing.T) {
 // 	var err error
 
-// 	// f, err := os.Create("cpu-profile.prof")
-// 	// if err != nil {
-// 	// 	log.Fatal(err)
-// 	// }
-
-// 	// pprof.StartCPUProfile(f)
-
 // 	testUser := &TestUser{1, "weisd"}
 
 // 	c := NewCache()
@@ -119,9 +112,5 @@ package cache
 
 // 	t.Log("tags.Get nil pass", ret2, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 // 	// }
-
-// 	// fmt.Println("end use ", time.Now().Sub(start))
-
-// 	// pprof.StopCPUProfile()
 
 // }
