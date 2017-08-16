@@ -80,5 +80,5 @@ func (s *TagSet) ResetTag(name string) string {
 
 // TagKey TagKey
 func (s *TagSet) TagKey(name string) string {
-	return fmt.Sprintf("%s:%s:key", s.opts.Prefix, name)
+	return fmt.Sprintf("%s.tagid:%s", s.opts.Prefix, name)
 }

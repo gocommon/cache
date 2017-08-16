@@ -15,6 +15,9 @@ func EncodeMD5(str string) string {
 
 // SetNil SetNil
 func SetNil(i interface{}) {
+	if IsNil(i) {
+		return
+	}
 	v := reflect.ValueOf(i)
 	v.Elem().Set(reflect.Zero(v.Elem().Type()))
 }

@@ -9,12 +9,12 @@ import (
 // Options Options
 type Options struct {
 	Prefix    string
-	TTL       int64
-	TouchTTL  int64
+	TTL       int64 // key 有效期
+	TouchTTL  int64 // 多少秒内访问，自动续期
 	Store     storer.Storer
 	Codec     codec.Codec
 	Locker    locker.Locker
-	TagTTL    int64
+	TagTTL    int64 // tagkey 有效期，默认-1，永久，如果想省内容空间，可以设置值
 	UseLocker bool
 }
 
@@ -23,7 +23,7 @@ type Option func(*Options)
 
 func defaultOptions(opts *Options) *Options {
 	if opts.TTL == 0 {
-		opts.TTL = 3600
+		opts.TTL = 60
 	}
 
 	if opts.TagTTL == 0 {
@@ -31,11 +31,11 @@ func defaultOptions(opts *Options) *Options {
 	}
 
 	if opts.TouchTTL == 0 {
-		opts.TouchTTL = 3600
+		opts.TouchTTL = 30
 	}
 
 	if len(opts.Prefix) == 0 {
-		opts.Prefix = "tagcache:"
+		opts.Prefix = "tagcache."
 	}
 
 	if opts.Store == nil {

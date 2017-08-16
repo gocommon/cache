@@ -99,15 +99,15 @@ func (c *Cache) Get(key string, val interface{}) (has bool, err error) {
 
 	// near expire
 	if unix > 0 && unix+c.opts.TTL-time.Now().Unix() < c.opts.TouchTTL {
-		c.opts.Store.Expire(key, c.opts.TTL)
+		unix := time.Now().Unix()
+		d = c.joinUnix(d, unix)
+		c.opts.Store.Set(c.keyWithPrefix(key), d, c.opts.TTL)
 	}
 
 	if bytes.Contains(d, EmptyValue) {
-		SetNil(val)
+		// SetNil(val)
 		return true, nil
 	}
-
-	//  touch
 
 	return true, c.opts.Codec.Decode(d, val)
 
