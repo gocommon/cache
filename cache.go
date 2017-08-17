@@ -163,7 +163,7 @@ func (c *Cache) ReleaseTagCache(tc TagCacher) {
 // Locker Locker
 func (c *Cache) Locker(key string) locker.Funcer {
 	if c.opts.Locker == nil {
-		return NewErrLocker().NewLocker()
+		return NewErrLocker(ErrLockerUndefined).NewLocker("")
 	}
 	return c.opts.Locker.NewLocker(c.keyWithPrefix(key))
 }
