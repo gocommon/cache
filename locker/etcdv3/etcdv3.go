@@ -1,12 +1,12 @@
 package etcdv3
 
 import (
-	"context"
 	"encoding/json"
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/concurrency"
 	"github.com/gocommon/cache/locker/locker"
+	"golang.org/x/net/context"
 )
 
 var _ locker.Locker = &Locker{}
@@ -53,32 +53,44 @@ func (l *Locker) NewWithConf(jsonconf string) error {
 
 // NewLocker NewLocker
 func (l *Locker) NewLocker(key string) locker.Funcer {
-	s, err := concurrency.NewSession(l.cli)
+
+	m, err := NewMutex(l.cli, key)
 	if err != nil {
 		return locker.NewErrFuncer(err)
 	}
 
-	return NewMutex(concurrency.NewMutex(s, key))
+	return m
 }
 
 // Mutex Mutex
 type Mutex struct {
-	m *concurrency.Mutex
+	m   *concurrency.Mutex
+	s   *concurrency.Session
+	ctx context.Context
 }
 
 // NewMutex NewMutex
-func NewMutex(s *concurrency.Mutex) *Mutex {
-	return &Mutex{s}
+func NewMutex(cli *clientv3.Client, key string) (*Mutex, error) {
+	s, err := concurrency.NewSession(cli)
+	if err != nil {
+		return nil, err
+	}
+
+	m := concurrency.NewMutex(s, "/cache-locker/"+key)
+
+	return &Mutex{m: m, s: s, ctx: cli.Ctx()}, nil
 }
 
 // Lock Lock
 func (m *Mutex) Lock() error {
-	return m.m.Lock(context.TODO())
+	return m.m.Lock(m.ctx)
 }
 
 // Unlock Unlock
 func (m *Mutex) Unlock() error {
-	return m.m.Unlock(context.TODO())
+	err := m.m.Unlock(m.ctx)
+	m.s.Close()
+	return err
 
 }
 
