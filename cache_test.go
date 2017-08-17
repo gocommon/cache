@@ -26,15 +26,15 @@ func getTestUserInfoKey(id int64) string {
 func TestCache(t *testing.T) {
 	var err error
 
-	testUser := &TestUser{1, "weisd"}
+	// testUser := &TestUser{1, "weisd"}
 
-	c := NewCache()
+	c := NewCache(UseLocker(true))
 
 	lockey := "ssss"
 
 	l1 := c.Locker(lockey)
 
-	err := l1.Lock()
+	err = l1.Lock()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,26 +43,53 @@ func TestCache(t *testing.T) {
 		l2 := c.Locker(lockey)
 		for {
 			err := l2.Lock()
-			t.Log(err)
-			if err != nil {
-				t.Log("lock ok")
+			t.Log("l2", err)
+			if err == nil {
+				t.Log("l2 lock ok")
 				l2.Unlock()
 				return
 			}
 
 			time.Sleep(300 * time.Millisecond)
+			t.Log("l2 lock again")
 		}
-
 	}()
 
 	time.Sleep(1 * time.Second)
 
 	l1.Unlock()
+	t.Log("unlock l1")
 
-	// tags := []string{
-	// 	getTestUserAllTag(),
-	// 	getTestUserInfoTag(testUser.ID),
-	// }
+	time.Sleep(2 * time.Second)
+
+	// 	// start := time.Now()
+
+	// 	// for i := 0; i < 1000; i++ {
+
+	// 	err = c.Tags(tags...).Set(key, testUser)
+	// 	if err != nil {
+	// 		t.Fatal(err)
+	// 		return
+	// 	}
+
+	// 	// t.Log("tagid", c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
+
+	// 	// ret := &testUser
+	// 	var ret *TestUser
+	// 	has, err := c.Tags(tags...).Get(key, &ret)
+	// 	if err != nil {
+	// 		t.Fatal(err)
+	// 		return
+	// 	}
+
+	// 	// t.Log("set.get pass", ret, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
+
+	// 	c.Tags(getTestUserInfoTag(testUser.ID)).Flush()
+
+	// 	var ret1 *TestUser
+	// 	has, err = c.Tags(tags...).Get(key, &ret1)
+	// 	if err != nil {
+	// 		t.Fatal(err)
 
 	// key := getTestUserInfoKey(testUser.ID)
 
@@ -74,21 +101,18 @@ func TestCache(t *testing.T) {
 
 	// t.Log("tagid", c.TagID(getTestUserInfoTag(testUser.ID)))
 
-	// // ret := &testUser
-	// var ret *TestUser
-	// has, err := c.Tags(tags).Get(key, &ret)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// 	return
-	// }
+	// 	// t.Log("get flush pass", ret1, ret1 == nil, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
-	// if !has || !reflect.DeepEqual(ret, testUser) {
-	// 	t.Log(has, ret, testUser)
-	// 	t.Fail()
-	// 	return
-	// }
+	// 	// test set nil
+	// 	retnil := &TestUser{}
+	// 	retnil = nil
+	// 	// set nil
+	// 	err = c.Tags(tags...).Set(key, retnil)
+	// 	if err != nil {
+	// 		t.Fatal(err)
+	// 	}
 
-	// t.Log("set.get pass", ret, c.TagID(getTestUserInfoTag(testUser.ID)))
+	// 	// t.Log("tagid", c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
 
 	// // flush
 	// c.Flush([]string{getTestUserInfoTag(testUser.ID)})
@@ -99,15 +123,15 @@ func TestCache(t *testing.T) {
 	// if err != nil {
 	// 	t.Fatal(err)
 
-	// }
+	// 	has, err = c.Tags(tags...).Get(key, &ret2)
+	// 	if err != nil {
+	// 		t.Fatal(err)
+	// 	}
 
 	// t.Log(has, ret1)
 
-	// if has || ret1 != nil {
-	// 	t.Log("get flush fail", has, ret1, ret1 != nil)
-	// 	t.Fail()
-	// 	return
-	// }
+	// 	t.Log("tags.Get nil pass", ret2, c.Tags().TagID(getTestUserInfoTag(testUser.ID)))
+	// 	// }
 
 	// t.Log("get flush pass", ret1, ret1 == nil, c.TagID(getTestUserInfoTag(testUser.ID)))
 

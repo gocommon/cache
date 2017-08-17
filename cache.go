@@ -2,21 +2,23 @@ package cache
 
 import (
 	"bytes"
+	"sync"
 
 	"time"
 
 	"github.com/gocommon/cache/locker"
 )
 
-var _ TagCacher = &Cache{}
+var _ Cacher = &Cache{}
 
 // Cache Cache
 type Cache struct {
 	opts *Options
+	pool sync.Pool
 }
 
 // NewCache NewCache
-func NewCache(opts ...Option) TagCacher {
+func NewCache(opts ...Option) Cacher {
 	options := &Options{}
 	for i := range opts {
 		opts[i](options)
@@ -24,14 +26,19 @@ func NewCache(opts ...Option) TagCacher {
 
 	options = defaultOptions(options)
 
-	return &Cache{
+	c := &Cache{
 		opts: options,
 	}
+	c.pool.New = func() interface{} {
+		return &TagCache{}
+	}
+
+	return c
 
 }
 
 // NewWithOptions NewWithOptions
-func NewWithOptions(opts Options) TagCacher {
+func NewWithOptions(opts Options) Cacher {
 
 	options := defaultOptions(&opts)
 
@@ -138,32 +145,35 @@ func (c *Cache) Del(key string) error {
 }
 
 // Tags Tags
-func (c *Cache) Tags(tags []string) Cacher {
-	return &TagCache{
-		tagSet: &TagSet{names: tags, opts: c.opts},
-		cache:  c,
+func (c *Cache) Tags(tags ...string) TagCacher {
+	tc := c.getTagCache()
+	tc.SetTags(tags...)
+	return tc
+}
+
+// GetTagCache GetTagCache
+func (c *Cache) getTagCache() TagCacher {
+	tc := c.pool.Get().(*TagCache)
+	if tc.cache == nil {
+		tc.cache = c
 	}
+	return tc
 }
 
-// TagID TagID
-func (c *Cache) TagID(tag string) string {
-	return (&TagSet{names: []string{}, opts: c.opts}).TagID(tag)
+// ReleaseTagCache ReleaseTagCache
+func (c *Cache) ReleaseTagCache(tc TagCacher) {
+	c.pool.Put(tc)
 }
 
-// Flush Flush
-func (c *Cache) Flush(tags []string) error {
-	tagSet := &TagSet{names: []string{}, opts: c.opts}
-	for i := range tags {
-		tagSet.ResetTag(tags[i])
-	}
-
-	return nil
-}
-
-// NewLocker NewLocker
-func (c *Cache) NewLocker(key string) locker.Funcer {
+// Locker Locker
+func (c *Cache) Locker(key string) locker.Funcer {
 	if c.opts.Locker == nil {
 		return NewErrLocker().NewLocker()
 	}
 	return c.opts.Locker.NewLocker(c.keyWithPrefix(key))
+}
+
+// Options Options
+func (c *Cache) Options() *Options {
+	return c.opts
 }
