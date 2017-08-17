@@ -55,6 +55,10 @@ type ErrCacher struct {
 	err error
 }
 
+func NewErrCacher(err error) Cacher {
+	return &ErrCacher{err}
+}
+
 func (c *ErrCacher) Set(key string, val interface{}) error {
 	return c.err
 }
