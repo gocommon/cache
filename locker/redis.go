@@ -8,6 +8,9 @@ import (
 	redsync "gopkg.in/redsync.v1"
 )
 
+DefaultRedisConfigString DefaultRedisConfigString
+var DefaultRedisConfigString = "[{}]"
+
 // RedisLocker RedisLocker
 type RedisLocker struct {
 	redsync *redsync.Redsync
@@ -57,6 +60,22 @@ func (l *RedisLocker) NewWithConf(jsonconf string) error {
 }
 
 // NewLocker NewLocker
+// NewMutex returns a new distributed mutex with given name.
+// func (r *Redsync) NewMutex(name string, options ...Option) *Mutex {
+// 	m := &Mutex{
+// 		name:   name,
+// 		expiry: 8 * time.Second,
+// 		tries:  32,
+// 		delay:  500 * time.Millisecond,
+// 		factor: 0.01,
+// 		quorum: len(r.pools)/2 + 1,
+// 		pools:  r.pools,
+// 	}
+// 	for _, o := range options {
+// 		o.Apply(m)
+// 	}
+// 	return m
+// }
 func (l *RedisLocker) NewLocker(key string) Funcer {
 	// do not retry!
 	m := l.redsync.NewMutex(key, redsync.SetTries(1))
@@ -123,4 +142,8 @@ func newRedisPool(conf RedisOptions) *redigo.Pool {
 			return err
 		},
 	}
+}
+
+func init() {
+	Register("redis", &RedisLocker{})
 }
