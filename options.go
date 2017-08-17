@@ -1,28 +1,19 @@
 package cache
 
-import (
-	codecd "github.com/gocommon/cache/codec"
-	"github.com/gocommon/cache/codec/codec"
-
-	storerd "github.com/gocommon/cache/storer"
-	"github.com/gocommon/cache/storer/storer"
-)
-
 // Options Options
 type Options struct {
 	Prefix   string
 	TTL      int64 // key 有效期
 	TouchTTL int64 // 多少秒内访问，自动续期
-	Store    storer.Storer
-	Codec    codec.Codec
+	TagTTL   int64 // tagkey 有效期，默认-1，永久，如果想省内容空间，可以设置值
 
-	TagTTL int64 // tagkey 有效期，默认-1，永久，如果想省内容空间，可以设置值
+	// CodecAdapter string
+
+	StoreAdapter       string
+	StoreAdapterConfig string
 }
 
-// Option Option
-type Option func(*Options)
-
-func defaultOptions(opts *Options) *Options {
+func defaultOptions(opts Options) Options {
 	if opts.TTL == 0 {
 		opts.TTL = 60
 	}
@@ -39,55 +30,5 @@ func defaultOptions(opts *Options) *Options {
 		opts.Prefix = "tagcache."
 	}
 
-	if opts.Store == nil {
-		opts.Store = storerd.DefaultStore
-	}
-
-	if opts.Codec == nil {
-		opts.Codec = codecd.DefaultCodec
-	}
-
 	return opts
-}
-
-// Prefix Prefix
-func Prefix(s string) Option {
-	return func(o *Options) {
-		o.Prefix = s
-	}
-}
-
-// TTL TTL
-func TTL(t int64) Option {
-	return func(o *Options) {
-		o.TTL = t
-	}
-}
-
-// TagTTL TagTTL
-func TagTTL(t int64) Option {
-	return func(o *Options) {
-		o.TagTTL = t
-	}
-}
-
-// ForeverTagTTL ForeverTagTTL
-func ForeverTagTTL() Option {
-	return func(o *Options) {
-		o.TagTTL = -1
-	}
-}
-
-// Store Store
-func Store(s storer.Storer) Option {
-	return func(o *Options) {
-		o.Store = s
-	}
-}
-
-// Codec Codec
-func Codec(s codec.Codec) Option {
-	return func(o *Options) {
-		o.Codec = s
-	}
 }

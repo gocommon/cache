@@ -5,38 +5,46 @@ import (
 	"sync"
 
 	"time"
+
+	codecd "github.com/gocommon/cache/codec"
+	"github.com/gocommon/cache/codec/codec"
+	storerd "github.com/gocommon/cache/storer"
+	"github.com/gocommon/cache/storer/storer"
 )
 
 var _ Cacher = &Cache{}
 
 // Cache Cache
 type Cache struct {
-	opts *Options
-	pool sync.Pool
+	opts  Options
+	pool  sync.Pool
+	store storer.Storer
+	codec codec.Codec
 }
 
-// NewCache NewCache
-func NewCache(opts ...Option) Cacher {
-	options := &Options{}
-	for i := range opts {
-		opts[i](options)
+// New New
+func New(opts ...Options) Cacher {
+	options := Options{}
+	if len(opts) > 0 {
+		options = opts[0]
 	}
 
 	options = defaultOptions(options)
 
-	return New(options)
-}
-
-// New New
-func New(opts *Options) Cacher {
-	opts = defaultOptions(opts)
 	c := &Cache{
-		opts: opts,
+		opts: options,
 	}
+
 	c.pool.New = func() interface{} {
 		return &TagCache{}
 	}
 
+	c.store = storerd.DefaultStore
+	if len(options.StoreAdapter) > 0 {
+		c.store = storer.NewWithAdapter(options.StoreAdapter, options.StoreAdapterConfig)
+	}
+
+	c.codec = codecd.DefaultCodec
 	return c
 }
 
@@ -70,7 +78,7 @@ func (c *Cache) Set(key string, val interface{}) error {
 
 	if !IsNil(val) {
 		var err error
-		d, err = c.opts.Codec.Encode(val)
+		d, err = c.codec.Encode(val)
 		if err != nil {
 			return err
 		}
@@ -81,12 +89,12 @@ func (c *Cache) Set(key string, val interface{}) error {
 	unix := time.Now().Unix()
 	d = c.joinUnix(d, unix)
 
-	return c.opts.Store.Set(c.keyWithPrefix(key), d, c.opts.TTL)
+	return c.store.Set(c.keyWithPrefix(key), d, c.opts.TTL)
 }
 
 // Get Get
 func (c *Cache) Get(key string, val interface{}) (has bool, err error) {
-	src, err := c.opts.Store.Get(c.keyWithPrefix(key))
+	src, err := c.store.Get(c.keyWithPrefix(key))
 	if err != nil {
 		return false, err
 	}
@@ -101,7 +109,7 @@ func (c *Cache) Get(key string, val interface{}) (has bool, err error) {
 	if unix > 0 && unix+c.opts.TTL-time.Now().Unix() < c.opts.TouchTTL {
 		unix := time.Now().Unix()
 		d = c.joinUnix(d, unix)
-		c.opts.Store.Set(c.keyWithPrefix(key), d, c.opts.TTL)
+		c.store.Set(c.keyWithPrefix(key), d, c.opts.TTL)
 	}
 
 	if bytes.Contains(d, EmptyValue) {
@@ -109,7 +117,7 @@ func (c *Cache) Get(key string, val interface{}) (has bool, err error) {
 		return true, nil
 	}
 
-	return true, c.opts.Codec.Decode(d, val)
+	return true, c.codec.Decode(d, val)
 
 }
 
@@ -118,7 +126,7 @@ func (c *Cache) Forever(key string, val interface{}) error {
 	d := EmptyValue
 	if !IsNil(val) {
 		var err error
-		d, err = c.opts.Codec.Encode(val)
+		d, err = c.codec.Encode(val)
 		if err != nil {
 			return err
 		}
@@ -127,13 +135,13 @@ func (c *Cache) Forever(key string, val interface{}) error {
 	// forever set unix = 0
 	d = c.joinUnix(d, 0)
 
-	return c.opts.Store.Forever(c.keyWithPrefix(key), d)
+	return c.store.Forever(c.keyWithPrefix(key), d)
 
 }
 
 // Del Del
 func (c *Cache) Del(key string) error {
-	return c.opts.Store.Del(c.keyWithPrefix(key))
+	return c.store.Del(c.keyWithPrefix(key))
 
 }
 
@@ -159,6 +167,11 @@ func (c *Cache) ReleaseTagCache(tc TagCacher) {
 }
 
 // Options Options
-func (c *Cache) Options() *Options {
+func (c *Cache) Options() Options {
 	return c.opts
+}
+
+// Store Store
+func (c *Cache) Store() storer.Storer {
+	return c.store
 }

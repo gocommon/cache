@@ -2,9 +2,13 @@ package cache
 
 import (
 	"errors"
+
+	"github.com/gocommon/cache/storer/storer"
 )
 
 var (
+	_ Cacher    = &ErrCacher{}
+	_ TagCacher = &ErrTagCache{}
 	// ErrNil ErrNil
 	ErrNil = errors.New("key not found")
 )
@@ -13,8 +17,6 @@ var (
 func IsErrNil(err error) bool {
 	return ErrNil == err
 }
-
-var _ Cacher = &ErrCacher{}
 
 type ErrCacher struct {
 	err error
@@ -37,39 +39,42 @@ func (c *ErrCacher) Del(key string) error {
 	return c.err
 }
 func (c *ErrCacher) Tags(tags ...string) TagCacher {
-	return NewErrTagCacher(c.err)
+	return NewErrTagCache(c.err)
 }
 
-func (c *ErrCacher) Options() *Options {
-	return &Options{}
+func (c *ErrCacher) Options() Options {
+	return Options{}
+}
+func (c *ErrCacher) Store() storer.Storer {
+	return storer.NewErrStorer(c.err)
 }
 
-type ErrTagCacher struct {
+type ErrTagCache struct {
 	err error
 }
 
-func NewErrTagCacher(err error) TagCacher {
-	return &ErrTagCacher{err}
+func NewErrTagCache(err error) TagCacher {
+	return &ErrTagCache{err}
 }
 
-func (c *ErrTagCacher) Set(key string, val interface{}) error {
+func (c *ErrTagCache) Set(key string, val interface{}) error {
 	return c.err
 }
-func (c *ErrTagCacher) Get(key string, val interface{}) (has bool, err error) {
+func (c *ErrTagCache) Get(key string, val interface{}) (has bool, err error) {
 	return false, c.err
 }
-func (c *ErrTagCacher) Forever(key string, val interface{}) error {
+func (c *ErrTagCache) Forever(key string, val interface{}) error {
 	return c.err
 }
-func (c *ErrTagCacher) Del(key string) error {
+func (c *ErrTagCache) Del(key string) error {
 	return c.err
 }
-func (c *ErrTagCacher) Flush() error {
+func (c *ErrTagCache) Flush() error {
 	return c.err
 }
-func (c *ErrTagCacher) TagID(tag string) string {
+func (c *ErrTagCache) TagID(tag string) string {
 	return ""
 }
-func (c *ErrTagCacher) SetTags(tags ...string) {
+func (c *ErrTagCache) SetTags(tags ...string) {
 	return
 }

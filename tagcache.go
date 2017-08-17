@@ -96,7 +96,7 @@ func (c *TagCache) Flush() error {
 func (c *TagCache) TagID(name string) string {
 
 	var id string
-	idc, _ := c.cache.Options().Store.Get(c.TagKey(name))
+	idc, _ := c.cache.Store().Get(c.TagKey(name))
 	if len(idc) > 0 {
 		id = string(idc)
 	} else {
@@ -147,9 +147,9 @@ func (c *TagCache) GetNamespace() string {
 func (c *TagCache) ResetTag(name string) string {
 	ver := strconv.FormatInt(time.Now().UnixNano(), 36)
 	if c.cache.Options().TagTTL > 0 {
-		c.cache.Options().Store.Set(c.TagKey(name), []byte(ver), c.cache.Options().TagTTL)
+		c.cache.Store().Set(c.TagKey(name), []byte(ver), c.cache.Options().TagTTL)
 	} else {
-		c.cache.Options().Store.Forever(c.TagKey(name), []byte(ver))
+		c.cache.Store().Forever(c.TagKey(name), []byte(ver))
 	}
 
 	return ver

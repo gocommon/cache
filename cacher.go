@@ -1,5 +1,10 @@
 package cache
 
+import "github.com/gocommon/cache/storer/storer"
+
+// EmptyValue EmptyValue
+var EmptyValue = []byte("##empty- -!##")
+
 // Cacher Cacher
 type Cacher interface {
 	Set(key string, val interface{}) error
@@ -7,7 +12,8 @@ type Cacher interface {
 	Forever(key string, val interface{}) error
 	Del(key string) error
 	Tags(tags ...string) TagCacher
-	Options() *Options
+	Options() Options
+	Store() storer.Storer
 }
 
 // TagCacher TagCacher
