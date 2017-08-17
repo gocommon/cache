@@ -1,7 +1,11 @@
 package storer
 
+import (
+	_ "github.com/gocommon/cache/storer/redis"
+	"github.com/gocommon/cache/storer/storer"
+)
 
 var (
 	// DefaultStore DefaultStore
-	DefaultStore = NewRedisStore()
+	DefaultStore = storer.NewWithAdapter("redis", "")
 )

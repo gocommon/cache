@@ -41,6 +41,10 @@ func NewRedisLocker(opts ...[]RedisOptions) *RedisLocker {
 func (l *RedisLocker) NewWithConf(jsonconf string) error {
 	var options []RedisOptions
 
+	if len(jsonconf) == 0 {
+		jsonconf = DefaultRedisConfigString
+	}
+
 	err := json.Unmarshal([]byte(jsonconf), &options)
 	if err != nil {
 		return err

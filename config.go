@@ -1,9 +1,9 @@
 package cache
 
 import (
-	"github.com/gocommon/cache/codec"
+	"github.com/gocommon/cache/codec/codec"
 	"github.com/gocommon/cache/locker/locker"
-	"github.com/gocommon/cache/storer"
+	"github.com/gocommon/cache/storer/storer"
 
 	_ "github.com/gocommon/cache/locker/etcdv3"
 	_ "github.com/gocommon/cache/locker/redis"
@@ -21,7 +21,7 @@ type Conf struct {
 	CodecAdapter       string
 	CodecAdapterConfig string
 
-	UseLocker           bool
+	// UseLocker           bool
 	LockerAdapter       string
 	LockerAdapterConfig string
 }
@@ -46,7 +46,7 @@ func NewCacheWithConf(conf Conf) Cacher {
 		opts.Codec = codec.NewWithAdapter(conf.CodecAdapter, conf.CodecAdapterConfig)
 	}
 
-	opts.UseLocker = conf.UseLocker
+	// opts.UseLocker = conf.UseLocker
 
 	return New(opts)
 
