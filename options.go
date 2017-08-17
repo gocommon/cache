@@ -3,8 +3,7 @@ package cache
 import (
 	codecd "github.com/gocommon/cache/codec"
 	"github.com/gocommon/cache/codec/codec"
-	lockerd "github.com/gocommon/cache/locker"
-	"github.com/gocommon/cache/locker/locker"
+
 	storerd "github.com/gocommon/cache/storer"
 	"github.com/gocommon/cache/storer/storer"
 )
@@ -16,8 +15,8 @@ type Options struct {
 	TouchTTL int64 // 多少秒内访问，自动续期
 	Store    storer.Storer
 	Codec    codec.Codec
-	Locker   locker.Locker
-	TagTTL   int64 // tagkey 有效期，默认-1，永久，如果想省内容空间，可以设置值
+
+	TagTTL int64 // tagkey 有效期，默认-1，永久，如果想省内容空间，可以设置值
 }
 
 // Option Option
@@ -46,10 +45,6 @@ func defaultOptions(opts *Options) *Options {
 
 	if opts.Codec == nil {
 		opts.Codec = codecd.DefaultCodec
-	}
-
-	if opts.Locker == nil {
-		opts.Locker = lockerd.DefaultLocker
 	}
 
 	return opts
@@ -96,10 +91,3 @@ func Codec(s codec.Codec) Option {
 		o.Codec = s
 	}
 }
-
-// UseLocker UseLocker
-// func UseLocker(use bool) Option {
-// 	return func(o *Options) {
-// 		o.UseLocker = use
-// 	}
-// }

@@ -5,8 +5,6 @@ import (
 	"sync"
 
 	"time"
-
-	"github.com/gocommon/cache/locker/locker"
 )
 
 var _ Cacher = &Cache{}
@@ -158,14 +156,6 @@ func (c *Cache) getTagCache() TagCacher {
 // ReleaseTagCache ReleaseTagCache
 func (c *Cache) ReleaseTagCache(tc TagCacher) {
 	c.pool.Put(tc)
-}
-
-// Locker Locker
-func (c *Cache) Locker(key string) locker.Funcer {
-	if c.opts.Locker == nil {
-		return NewErrLocker(ErrLockerUndefined).NewLocker("")
-	}
-	return c.opts.Locker.NewLocker(c.keyWithPrefix(key))
 }
 
 // Options Options

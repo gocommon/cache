@@ -1,9 +1,5 @@
 package cache
 
-import (
-	"github.com/gocommon/cache/locker/locker"
-)
-
 // Cacher Cacher
 type Cacher interface {
 	Set(key string, val interface{}) error
@@ -11,7 +7,6 @@ type Cacher interface {
 	Forever(key string, val interface{}) error
 	Del(key string) error
 	Tags(tags ...string) TagCacher
-	Locker(key string) locker.Funcer
 	Options() *Options
 }
 

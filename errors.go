@@ -2,51 +2,16 @@ package cache
 
 import (
 	"errors"
-
-	"github.com/gocommon/cache/locker/locker"
 )
 
 var (
 	// ErrNil ErrNil
-	ErrNil             = errors.New("key not found")
-	ErrLockerUndefined = errors.New("locker undefined")
+	ErrNil = errors.New("key not found")
 )
 
 // IsErrNil IsErrNil
 func IsErrNil(err error) bool {
 	return ErrNil == err
-}
-
-type ErrLocker struct {
-	err error
-}
-
-func NewErrLocker(err error) locker.Locker {
-	return &ErrLocker{err}
-}
-
-func (e *ErrLocker) NewLocker(key string) locker.Funcer {
-	return NewErrLockerFuncer(e.err)
-}
-
-func (e *ErrLocker) NewWithConf(conf string) error {
-	return e.err
-}
-
-type ErrLockerFuncer struct {
-	err error
-}
-
-func NewErrLockerFuncer(err error) locker.Funcer {
-	return &ErrLockerFuncer{err}
-}
-
-func (e *ErrLockerFuncer) Lock() error {
-	return e.err
-}
-
-func (e *ErrLockerFuncer) Unlock() error {
-	return e.err
 }
 
 var _ Cacher = &ErrCacher{}
@@ -74,9 +39,7 @@ func (c *ErrCacher) Del(key string) error {
 func (c *ErrCacher) Tags(tags ...string) TagCacher {
 	return NewErrTagCacher(c.err)
 }
-func (c *ErrCacher) Locker(key string) locker.Funcer {
-	return NewErrLockerFuncer(c.err)
-}
+
 func (c *ErrCacher) Options() *Options {
 	return &Options{}
 }
