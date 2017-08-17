@@ -6,7 +6,7 @@ import (
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/concurrency"
-	"github.com/gocommon/cache/locker"
+	"github.com/gocommon/cache/locker/locker"
 )
 
 var _ locker.Locker = &Locker{}
@@ -31,10 +31,13 @@ func (l *Locker) NewWithConf(jsonconf string) error {
 	// clientv3.Config{Endpoints: endpoints}
 
 	var conf clientv3.Config
+	conf.Endpoints = []string{"127.0.0.1:2379"}
 
-	err := json.Unmarshal([]byte(jsonconf), &conf)
-	if err != nil {
-		return err
+	if len(jsonconf) > 0 {
+		err := json.Unmarshal([]byte(jsonconf), &conf)
+		if err != nil {
+			return err
+		}
 	}
 
 	c, err := clientv3.New(conf)

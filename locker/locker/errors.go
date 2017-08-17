@@ -11,7 +11,7 @@ var (
 	ErrLockFailed = errors.New("Locker Lock Failed")
 
 	// ErrLockerNotFound ErrLockerNotFound
-	ErrLockerNotFound = errors.New("locker not found")
+	ErrLockerNotFound = errors.New("locker not found, forgot to init register?")
 )
 
 // IsErrLockFailed IsErrLockFailed

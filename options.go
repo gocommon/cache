@@ -2,7 +2,8 @@ package cache
 
 import (
 	"github.com/gocommon/cache/codec"
-	"github.com/gocommon/cache/locker"
+	lockerd "github.com/gocommon/cache/locker"
+	"github.com/gocommon/cache/locker/locker"
 	"github.com/gocommon/cache/storer"
 )
 
@@ -47,7 +48,7 @@ func defaultOptions(opts *Options) *Options {
 	}
 
 	if opts.Locker == nil && opts.UseLocker {
-		opts.Locker = locker.DefaultLocker
+		opts.Locker = lockerd.DefaultLocker
 	}
 
 	return opts

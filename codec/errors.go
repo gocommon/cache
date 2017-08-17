@@ -6,7 +6,7 @@ var (
 	_ Codec = &ErrCodec{}
 
 	// ErrCodeNotFound ErrCodeNotFound
-	ErrCodeNotFound = errors.New("codec not found")
+	ErrCodeNotFound = errors.New("codec not found, forgot to init register?")
 )
 
 // ErrCodec ErrCodec

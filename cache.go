@@ -6,7 +6,7 @@ import (
 
 	"time"
 
-	"github.com/gocommon/cache/locker"
+	"github.com/gocommon/cache/locker/locker"
 )
 
 var _ Cacher = &Cache{}
@@ -26,25 +26,20 @@ func NewCache(opts ...Option) Cacher {
 
 	options = defaultOptions(options)
 
+	return New(options)
+}
+
+// New New
+func New(opts *Options) Cacher {
+	opts = defaultOptions(opts)
 	c := &Cache{
-		opts: options,
+		opts: opts,
 	}
 	c.pool.New = func() interface{} {
 		return &TagCache{}
 	}
 
 	return c
-
-}
-
-// NewWithOptions NewWithOptions
-func NewWithOptions(opts Options) Cacher {
-
-	options := defaultOptions(&opts)
-
-	return &Cache{
-		opts: options,
-	}
 }
 
 func (c *Cache) keyWithPrefix(key string) string {
