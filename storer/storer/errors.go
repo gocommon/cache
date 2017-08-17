@@ -5,7 +5,7 @@ import "errors"
 var (
 	_ Storer = &ErrStorer{}
 	// ErrStorerNotFound ErrStorerNotFound
-	ErrStorerNotFound = errors.New("storer not found")
+	ErrStorerNotFound = errors.New("storer not found, forgot to init register?")
 )
 
 // ErrStorer ErrStorer

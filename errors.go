@@ -3,7 +3,7 @@ package cache
 import (
 	"errors"
 
-	"github.com/gocommon/cache/locker"
+	"github.com/gocommon/cache/locker/locker"
 )
 
 var (

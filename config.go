@@ -1,9 +1,12 @@
 package cache
 
 import (
-	"github.com/gocommon/cache/codec"
-	"github.com/gocommon/cache/locker"
-	"github.com/gocommon/cache/storer"
+	"github.com/gocommon/cache/codec/codec"
+	"github.com/gocommon/cache/locker/locker"
+	"github.com/gocommon/cache/storer/storer"
+
+	_ "github.com/gocommon/cache/locker/etcdv3"
+	_ "github.com/gocommon/cache/locker/redis"
 )
 
 // Conf Conf
@@ -18,24 +21,33 @@ type Conf struct {
 	CodecAdapter       string
 	CodecAdapterConfig string
 
-	UseLocker           bool
+	// UseLocker           bool
 	LockerAdapter       string
 	LockerAdapterConfig string
 }
 
 // NewCacheWithConf NewCacheWithConf
 func NewCacheWithConf(conf Conf) Cacher {
-	opts := Options{}
+
+	opts := &Options{}
 	opts.Prefix = conf.Prefix
 	opts.TagTTL = conf.TagTTL
 	opts.TTL = conf.TTL
 
-	opts.Store = storer.NewWithAdapter(conf.StoreAdapter, conf.StoreAdapterConfig)
-	opts.Locker = locker.NewWithAdapter(conf.LockerAdapter, conf.LockerAdapterConfig)
-	opts.Codec = codec.NewWithAdapter(conf.CodecAdapter, conf.CodecAdapterConfig)
+	if len(conf.StoreAdapter) > 0 {
+		opts.Store = storer.NewWithAdapter(conf.StoreAdapter, conf.StoreAdapterConfig)
+	}
 
-	opts.UseLocker = conf.UseLocker
+	if len(conf.LockerAdapter) > 0 {
+		opts.Locker = locker.NewWithAdapter(conf.LockerAdapter, conf.LockerAdapterConfig)
+	}
 
-	return NewWithOptions(opts)
+	if len(conf.CodecAdapter) > 0 {
+		opts.Codec = codec.NewWithAdapter(conf.CodecAdapter, conf.CodecAdapterConfig)
+	}
+
+	// opts.UseLocker = conf.UseLocker
+
+	return New(opts)
 
 }

@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"github.com/gocommon/cache/locker"
+	"github.com/gocommon/cache/locker/locker"
 )
 
 // Cacher Cacher
