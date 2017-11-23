@@ -15,7 +15,7 @@ type Options struct {
 
 func defaultOptions(opts Options) Options {
 	if opts.TTL == 0 {
-		opts.TTL = 60
+		opts.TTL = 7200
 	}
 
 	if opts.TagTTL == 0 {
