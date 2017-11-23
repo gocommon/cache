@@ -23,7 +23,7 @@ func defaultOptions(opts Options) Options {
 	}
 
 	if opts.TouchTTL == 0 {
-		opts.TouchTTL = 30
+		opts.TouchTTL = 600
 	}
 
 	if len(opts.Prefix) == 0 {
