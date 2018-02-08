@@ -154,17 +154,20 @@ func (c *Cache) Tags(tags ...string) TagCacher {
 
 // GetTagCache GetTagCache
 func (c *Cache) getTagCache() TagCacher {
-	tc := c.pool.Get().(*TagCache)
-	if tc.cache == nil {
-		tc.cache = c
+	// tc := c.pool.Get().(*TagCache)
+	// if tc.cache == nil {
+	// 	tc.cache = c
+	// }
+	// return tc
+
+	return &TagCache{
+		cache: c,
 	}
-	return tc
 }
 
 // ReleaseTagCache ReleaseTagCache
 func (c *Cache) ReleaseTagCache(tc TagCacher) {
-	tc.ResetNames()
-	c.pool.Put(tc)
+	// c.pool.Put(tc)
 }
 
 // Options Options
