@@ -163,6 +163,7 @@ func (c *Cache) getTagCache() TagCacher {
 
 // ReleaseTagCache ReleaseTagCache
 func (c *Cache) ReleaseTagCache(tc TagCacher) {
+	tc.ResetNames()
 	c.pool.Put(tc)
 }
 

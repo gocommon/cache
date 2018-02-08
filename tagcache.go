@@ -16,6 +16,11 @@ type TagCache struct {
 	names []string
 }
 
+// ResetNames ResetNames
+func (c *TagCache) ResetNames() {
+	c.names = nil
+}
+
 // SetTags SetTags
 func (c *TagCache) SetTags(tags ...string) {
 	c.names = tags
