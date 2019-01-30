@@ -6,7 +6,7 @@ import (
 
 	"github.com/gocommon/cache/storer/storer"
 
-	redigo "github.com/garyburd/redigo/redis"
+	redigo "github.com/gomodule/redigo/redis"
 )
 
 // RedisStore RedisStore
