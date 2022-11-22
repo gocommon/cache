@@ -43,7 +43,7 @@ func (p *session) getTagIDs() ([]string, error) {
 
 	ids := make([]string, l)
 
-	vals, err := p.c.store.MGet(p.ctx, p.tags)
+	vals, err := p.opts.store.MGet(p.ctx, p.tags)
 	if err != nil {
 		return nil, err
 	}
@@ -70,13 +70,13 @@ func (p *session) getTagIDs() ([]string, error) {
 // setTag 更新tag的值
 func (p *session) setTag(tag string) (string, error) {
 	ver := strconv.FormatInt(time.Now().UnixNano(), 36)
-	if p.c.opts.TagTTL > 0 {
-		err := p.c.store.SetEx(p.ctx, p.newTagKey(tag), []byte(ver), p.c.opts.TagTTL)
+	if p.opts.tagTTL > 0 {
+		err := p.opts.store.SetEx(p.ctx, p.newTagKey(tag), []byte(ver), p.opts.tagTTL)
 		if err != nil {
 			return "", err
 		}
 	} else {
-		err := p.c.store.Set(p.ctx, p.newTagKey(tag), []byte(ver))
+		err := p.opts.store.Set(p.ctx, p.newTagKey(tag), []byte(ver))
 		if err != nil {
 			return "", err
 		}
@@ -87,5 +87,5 @@ func (p *session) setTag(tag string) (string, error) {
 
 // TagKey 拼接tagkey,添加前缀
 func (p *session) newTagKey(tag string) string {
-	return fmt.Sprintf("%s.tagid:%s", p.c.opts.Prefix, tag)
+	return fmt.Sprintf("%s.tagid:%s", p.opts.prefix, tag)
 }

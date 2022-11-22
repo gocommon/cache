@@ -1,11 +1,11 @@
-package codec
+package gob
 
 import (
 	"bytes"
 	"encoding/gob"
-
-	"github.com/gocommon/cache/v2/codec/codec"
 )
+
+const Name = "gob"
 
 // GobCodec GobCodec
 type GobCodec struct{}
@@ -13,11 +13,6 @@ type GobCodec struct{}
 // NewGobCodec NewGobCodec
 func NewGobCodec() *GobCodec {
 	return &GobCodec{}
-}
-
-// NewWithConf NewWithConf
-func (c *GobCodec) NewWithConf(jsonconf string) error {
-	return nil
 }
 
 // Encode Encode
@@ -38,8 +33,4 @@ func (c *GobCodec) Decode(data []byte, v interface{}) error {
 	dec := gob.NewDecoder(r)
 
 	return dec.Decode(v)
-}
-
-func init() {
-	codec.Register("gob", &GobCodec{})
 }

@@ -1,34 +1,89 @@
 package cache
 
+import (
+	"github.com/gocommon/cache/v2/codec"
+	"github.com/gocommon/cache/v2/codec/gob"
+	"github.com/gocommon/cache/v2/store"
+)
+
 // Options Options
 type Options struct {
-	Prefix   string
-	TTL      int64 // key 有效期
-	TouchTTL int64 // 多少秒内访问，自动续期
-	TagTTL   int64 // tagkey 有效期，默认-1，永久，如果想省内容空间，可以设置值
+	prefix   string
+	ttl      int64 // key 有效期
+	touchTTL int64 // 多少秒内访问，自动续期
+	tagTTL   int64 // tagkey 有效期，默认-1，永久，如果想省内容空间，可以设置值
 
-	// CodecAdapter string
-
-	StoreAdapter       string
-	StoreAdapterConfig string
+	store store.Store
+	codec codec.Codec
 }
 
-func defaultOptions(opts Options) Options {
-	if opts.TTL == 0 {
-		opts.TTL = 7200
+type Option func(*Options)
+
+// WithPrefix key前缀
+func WithPrefix(s string) Option {
+	return func(o *Options) {
+		o.prefix = s
+	}
+}
+
+// WithTTL 数据key 有效期， 到期自动失效
+func WithTTL(s int64) Option {
+	return func(o *Options) {
+		o.ttl = s
+	}
+}
+
+// WithTagTTL tag 有效期，默认-1，永久，如果想省内容空间，可以设置值
+func WithTagTTL(s int64) Option {
+	return func(o *Options) {
+		o.tagTTL = s
+	}
+}
+
+// WithTouchTTL  多少秒内访问，自动续期
+func WithTouchTTL(s int64) Option {
+	return func(o *Options) {
+		o.touchTTL = s
+	}
+}
+
+// WithStore 默认没有
+func WithStore(s store.Store) Option {
+	return func(o *Options) {
+		o.store = s
+	}
+}
+
+// WithCodec 默认gob
+func WithCodec(c codec.Codec) Option {
+	return func(o *Options) {
+		o.codec = c
+	}
+}
+
+func defaultOptions(opts *Options) {
+	if opts.ttl == 0 {
+		opts.ttl = 7200
 	}
 
-	if opts.TagTTL == 0 {
-		opts.TagTTL = -1
+	if opts.tagTTL == 0 {
+		opts.tagTTL = -1
 	}
 
-	if opts.TouchTTL == 0 {
-		opts.TouchTTL = 600
+	if opts.touchTTL == 0 {
+		opts.touchTTL = 600
 	}
 
-	if len(opts.Prefix) == 0 {
-		opts.Prefix = "tagcache."
+	if len(opts.prefix) == 0 {
+		opts.prefix = "tc."
 	}
 
-	return opts
+	if opts.store == nil {
+		opts.store = store.DefaultErrStore
+	}
+
+	if opts.codec == nil {
+		opts.codec = &gob.GobCodec{}
+	}
+
 }

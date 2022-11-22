@@ -2,15 +2,16 @@ package redis
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-redis/redis/extra/redisotel"
 	redisv8 "github.com/go-redis/redis/v8"
-	"github.com/gocommon/cache/v2"
 	parser "github.com/gocommon/cache/v2/pkg/dsn"
 	xtime "github.com/gocommon/cache/v2/pkg/time"
+	"github.com/gocommon/cache/v2/store"
 )
 
-var _ cache.Storer = (*Redis)(nil)
+var _ store.Store = (*Redis)(nil)
 
 type Config struct {
 	Username string `dsn:"username"`
@@ -77,15 +78,20 @@ func (p *Redis) MGet(ctx context.Context, keys []string) ([][]byte, error) {
 	return list, nil
 }
 func (p *Redis) Set(ctx context.Context, key string, val []byte) error {
+	_, err := p.rdb.Set(ctx, key, val, redisv8.KeepTTL).Result()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 func (p *Redis) SetEx(ctx context.Context, key string, val []byte, ttl int64) error {
+	_, err := p.rdb.SetEX(ctx, key, val, time.Second*time.Duration(ttl)).Result()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 func (p *Redis) Del(ctx context.Context, key string) error {
-	return nil
-}
-
-func init() {
-	cache.Register("go-redis", &Redis{})
+	_, err := p.rdb.Del(ctx, key).Result()
+	return err
 }

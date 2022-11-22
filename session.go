@@ -11,7 +11,7 @@ var _ Session = (*session)(nil)
 type session struct {
 	ctx  context.Context
 	tags []string
-	c    *Cache
+	opts *Options
 }
 
 // genKey 统一处理生成key, tag
@@ -21,11 +21,15 @@ func (p *session) genKey(key string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return p.c.keyWithPrefix(k), nil
+		return p.keyWithPrefix(k), nil
 	}
 
-	return p.c.keyWithPrefix(key), nil
+	return p.keyWithPrefix(key), nil
 
+}
+
+func (c *session) keyWithPrefix(key string) string {
+	return c.opts.prefix + key
 }
 
 func (p *session) Get(key string, val interface{}) (has bool, err error) {
@@ -35,7 +39,7 @@ func (p *session) Get(key string, val interface{}) (has bool, err error) {
 		return false, err
 	}
 
-	src, err := p.c.store.Get(p.ctx, rk)
+	src, err := p.opts.store.Get(p.ctx, rk)
 	if err != nil {
 		return false, err
 	}
@@ -44,13 +48,13 @@ func (p *session) Get(key string, val interface{}) (has bool, err error) {
 		return false, nil
 	}
 
-	d, unix := p.c.splitUnix(src)
+	d, unix := splitUnix(src)
 
 	// near expire
-	if unix > 0 && unix+p.c.opts.TTL-time.Now().Unix() < p.c.opts.TouchTTL {
+	if unix > 0 && unix+p.opts.ttl-time.Now().Unix() < p.opts.touchTTL {
 		unix := time.Now().Unix()
-		d = p.c.joinUnix(d, unix)
-		p.c.store.SetEx(p.ctx, p.c.keyWithPrefix(key), d, p.c.opts.TTL)
+		d = joinUnix(d, unix)
+		p.opts.store.SetEx(p.ctx, rk, d, p.opts.ttl)
 	}
 
 	if bytes.Contains(d, EmptyValue) {
@@ -58,7 +62,7 @@ func (p *session) Get(key string, val interface{}) (has bool, err error) {
 		return true, nil
 	}
 
-	return true, p.c.codec.Decode(d, val)
+	return true, p.opts.codec.Decode(d, val)
 }
 
 func (p *session) Set(key string, val interface{}) error {
@@ -66,7 +70,7 @@ func (p *session) Set(key string, val interface{}) error {
 
 	if !IsNil(val) {
 		var err error
-		d, err = p.c.codec.Encode(val)
+		d, err = p.opts.codec.Encode(val)
 		if err != nil {
 			return err
 		}
@@ -75,14 +79,14 @@ func (p *session) Set(key string, val interface{}) error {
 
 	// add unix to the end @
 	unix := time.Now().Unix()
-	d = p.c.joinUnix(d, unix)
+	d = joinUnix(d, unix)
 
 	rk, err := p.genKey(key)
 	if err != nil {
 		return err
 	}
 
-	return p.c.store.SetEx(p.ctx, rk, d, p.c.opts.TTL)
+	return p.opts.store.SetEx(p.ctx, rk, d, p.opts.ttl)
 }
 
 func (p *session) Del(key string) error {
@@ -90,7 +94,7 @@ func (p *session) Del(key string) error {
 	if err != nil {
 		return err
 	}
-	return p.c.store.Del(p.ctx, rk)
+	return p.opts.store.Del(p.ctx, rk)
 }
 
 func (p *session) Flush() error {
@@ -103,4 +107,24 @@ func (p *session) Flush() error {
 	}
 
 	return nil
+}
+
+func splitUnix(src []byte) (data []byte, unix int64) {
+	idx := len(src) - 9
+
+	flag := src[idx : idx+1]
+	if idx < 0 || flag[0] != '@' {
+		return src, 0
+	}
+
+	return src[0:idx], int64(BytesToUint64(src[idx+1:]))
+
+}
+
+func joinUnix(data []byte, unix int64) []byte {
+	buf := bytes.NewBuffer(data)
+	buf.WriteByte(byte('@'))
+	buf.Write(Uint64ToBytes(uint64(unix)))
+
+	return buf.Bytes()
 }
