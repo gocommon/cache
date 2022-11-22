@@ -1,6 +1,7 @@
-package storer
+package cache
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -10,18 +11,21 @@ var Adapter = map[string]Storer{}
 // Register Register
 func Register(name string, s Storer) {
 	name = strings.ToLower(name)
-	Adapter[name] = s
+
+	if _, ok := Adapter[name]; ok {
+		panic(fmt.Sprintf("store exists:%s", name))
+	}
 }
 
-// NewWithAdapter NewWithAdapter
-func NewWithAdapter(name, jsonconf string) Storer {
+// InitStore InitStore
+func InitStore(name, jsonconf string) Storer {
 	name = strings.ToLower(name)
 	s, ok := Adapter[name]
 	if !ok {
 		return NewErrStorer(ErrStorerNotFound)
 	}
 
-	err := s.NewWithConf(jsonconf)
+	err := s.Init(jsonconf)
 	if err != nil {
 		return NewErrStorer(err)
 	}

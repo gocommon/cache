@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/gocommon/cache/storer/storer"
-
 	redigo "github.com/gomodule/redigo/redis"
 )
 
@@ -137,5 +135,5 @@ func newRedisPool(conf RedisOptions) *redigo.Pool {
 }
 
 func init() {
-	storer.Register("redis", &RedisStore{})
+	// storer.Register("redis", &RedisStore{})
 }

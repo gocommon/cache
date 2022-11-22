@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 
-	"github.com/gocommon/cache/codec/codec"
+	"github.com/gocommon/cache/v2/codec/codec"
 )
 
 // GobCodec GobCodec

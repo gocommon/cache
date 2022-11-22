@@ -1,8 +1,8 @@
 package codec
 
 import (
-	"github.com/gocommon/cache/codec/codec"
-	_ "github.com/gocommon/cache/codec/gob"
+	"github.com/gocommon/cache/v2/codec/codec"
+	_ "github.com/gocommon/cache/v2/codec/gob"
 )
 
 var (
