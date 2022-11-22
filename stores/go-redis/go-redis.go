@@ -61,10 +61,20 @@ func (p *Redis) Init(dsn string) error {
 }
 
 func (p *Redis) Get(ctx context.Context, key string) ([]byte, error) {
-	return nil, nil
+	return p.rdb.Get(ctx, key).Bytes()
 }
 func (p *Redis) MGet(ctx context.Context, keys []string) ([][]byte, error) {
-	return nil, nil
+	res, err := p.rdb.MGet(ctx, keys...).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	list := make([][]byte, len(res))
+	for i, v := range res {
+		list[i] = []byte(v.(string))
+	}
+
+	return list, nil
 }
 func (p *Redis) Set(ctx context.Context, key string, val []byte) error {
 	return nil
