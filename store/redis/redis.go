@@ -74,7 +74,12 @@ func (p *Redis) MGet(ctx context.Context, keys []string) ([][]byte, error) {
 
 	list := make([][]byte, len(res))
 	for i, v := range res {
-		list[i] = []byte(v.(string))
+		if v == nil {
+			list[i] = []byte("")
+		} else {
+			list[i] = []byte(v.(string))
+		}
+
 	}
 
 	return list, nil
