@@ -85,7 +85,7 @@ func (p *Redis) MGet(ctx context.Context, keys []string) ([][]byte, error) {
 	return list, nil
 }
 func (p *Redis) Set(ctx context.Context, key string, val []byte) error {
-	_, err := p.rdb.Set(ctx, key, val, redisv8.KeepTTL).Result()
+	_, err := p.rdb.Set(ctx, key, val, 0).Result()
 	if err != nil {
 		return err
 	}
