@@ -64,7 +64,12 @@ func NewRedis(rdb *redisv8.Client) *Redis {
 // }
 
 func (p *Redis) Get(ctx context.Context, key string) ([]byte, error) {
-	return p.rdb.Get(ctx, key).Bytes()
+	ret, err := p.rdb.Get(ctx, key).Bytes()
+	if err != nil && err != redisv8.Nil {
+		return nil, err
+	}
+
+	return ret, nil
 }
 func (p *Redis) MGet(ctx context.Context, keys []string) ([][]byte, error) {
 	res, err := p.rdb.MGet(ctx, keys...).Result()
