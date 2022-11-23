@@ -13,7 +13,7 @@ type Store interface {
 	SetEx(ctx context.Context, key string, val []byte, ttl int64) error
 	Del(ctx context.Context, key string) error
 	// network:[//[username[:password]@]address[:port][,address[:port]]][/path][?query][#fragment]
-	Init(dsn string) error
+	// Init(dsn string) error
 }
 
 var (
