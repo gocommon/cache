@@ -6,7 +6,7 @@ import (
 
 // Cacher Cacher
 type Cacher interface {
-	Tag(ctx context.Context, tags ...string) Session
+	Tags(ctx context.Context, tags ...string) Session
 }
 
 type Session interface {
@@ -39,6 +39,6 @@ func New(opts ...Option) *Cache {
 	return c
 }
 
-func (c *Cache) Tag(ctx context.Context, tags ...string) Session {
+func (c *Cache) Tags(ctx context.Context, tags ...string) Session {
 	return &session{ctx: ctx, tags: tags, opts: c.opts}
 }
