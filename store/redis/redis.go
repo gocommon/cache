@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	redisv8 "github.com/go-redis/redis/v8"
@@ -65,7 +66,7 @@ func NewRedis(rdb *redisv8.Client) *Redis {
 
 func (p *Redis) Get(ctx context.Context, key string) ([]byte, error) {
 	ret, err := p.rdb.Get(ctx, key).Bytes()
-	if err != nil && err != redisv8.Nil {
+	if err != nil && !errors.Is(err, redisv8.Nil) {
 		return nil, err
 	}
 
