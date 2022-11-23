@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+// EmptyValue EmptyValue
+var EmptyValue = []byte("##empty- -!##")
+
 var _ Session = (*session)(nil)
 
 type session struct {
