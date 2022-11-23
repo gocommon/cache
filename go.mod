@@ -8,4 +8,4 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 )
 
-require go.opentelemetry.io/otel v1.11.1 // indirect
+require go.opentelemetry.io/otel v1.7.0 // indirect
