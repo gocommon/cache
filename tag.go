@@ -52,7 +52,12 @@ func (p *session) getTagIDs() ([]string, error) {
 
 	ids := make([]string, l)
 
-	vals, err := p.opts.store.MGet(p.ctx, p.tags)
+	getTags := make([]string, len(p.tags))
+	for k, v := range p.tags {
+		getTags[k] = p.newTagKey(v)
+	}
+
+	vals, err := p.opts.store.MGet(p.ctx, getTags)
 	if err != nil {
 		return nil, err
 	}

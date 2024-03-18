@@ -4,12 +4,9 @@ import (
 	"context"
 )
 
-// EmptyValue EmptyValue
-var EmptyValue = []byte("##empty- -!##")
-
 // Cacher Cacher
 type Cacher interface {
-	Tag(ctx context.Context, tags ...string) Session
+	Tags(ctx context.Context, tags ...string) Session
 }
 
 type Session interface {
@@ -29,7 +26,7 @@ type Cache struct {
 }
 
 // New New
-func New(opts ...Option) Cacher {
+func New(opts ...Option) *Cache {
 	options := &Options{}
 	for _, op := range opts {
 		op(options)
@@ -44,7 +41,6 @@ func New(opts ...Option) Cacher {
 	return c
 }
 
-func (c *Cache) Tag(ctx context.Context, tags ...string) Session {
-
+func (c *Cache) Tags(ctx context.Context, tags ...string) Session {
 	return &session{ctx: ctx, tags: tags, opts: c.opts}
 }

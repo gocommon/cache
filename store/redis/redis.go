@@ -2,11 +2,10 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"time"
 
-	"github.com/go-redis/redis/extra/redisotel"
 	redisv8 "github.com/go-redis/redis/v8"
-	parser "github.com/gocommon/cache/v2/pkg/dsn"
 	xtime "github.com/gocommon/cache/v2/pkg/time"
 	"github.com/gocommon/cache/v2/store"
 )
@@ -29,40 +28,49 @@ type Redis struct {
 	rdb *redisv8.Client
 }
 
-func (p *Redis) Init(dsn string) error {
-
-	d, err := parser.Parse(dsn)
-	if err != nil {
-		return err
-	}
-
-	cnf := &Config{}
-
-	d.Bind(&cnf)
-
-	rdb := redisv8.NewClient(&redisv8.Options{
-		Network:      cnf.Network,
-		Addr:         cnf.Address,
-		Password:     cnf.Password,
-		DB:           cnf.DB,
-		DialTimeout:  cnf.DialTimeout.AsDuration(),
-		WriteTimeout: cnf.WriteTimeout.AsDuration(),
-		ReadTimeout:  cnf.ReadTimeout.AsDuration(),
-	})
-	rdb.AddHook(redisotel.TracingHook{})
-
-	err = rdb.Ping(context.TODO()).Err()
-	if err != nil {
-		return err
-	}
-
-	p.rdb = rdb
-
-	return nil
+func NewRedis(rdb *redisv8.Client) *Redis {
+	return &Redis{rdb: rdb}
 }
 
+// func (p *Redis) Init(dsn string) error {
+
+// 	d, err := parser.Parse(dsn)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	cnf := &Config{}
+
+// 	d.Bind(&cnf)
+
+// 	rdb := redisv8.NewClient(&redisv8.Options{
+// 		Network:      cnf.Network,
+// 		Addr:         cnf.Address,
+// 		Password:     cnf.Password,
+// 		DB:           cnf.DB,
+// 		DialTimeout:  cnf.DialTimeout.AsDuration(),
+// 		WriteTimeout: cnf.WriteTimeout.AsDuration(),
+// 		ReadTimeout:  cnf.ReadTimeout.AsDuration(),
+// 	})
+// 	rdb.AddHook(redisotel.TracingHook{})
+
+// 	err = rdb.Ping(context.TODO()).Err()
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	p.rdb = rdb
+
+// 	return nil
+// }
+
 func (p *Redis) Get(ctx context.Context, key string) ([]byte, error) {
-	return p.rdb.Get(ctx, key).Bytes()
+	ret, err := p.rdb.Get(ctx, key).Bytes()
+	if err != nil && !errors.Is(err, redisv8.Nil) {
+		return nil, err
+	}
+
+	return ret, nil
 }
 func (p *Redis) MGet(ctx context.Context, keys []string) ([][]byte, error) {
 	res, err := p.rdb.MGet(ctx, keys...).Result()
@@ -72,13 +80,18 @@ func (p *Redis) MGet(ctx context.Context, keys []string) ([][]byte, error) {
 
 	list := make([][]byte, len(res))
 	for i, v := range res {
-		list[i] = []byte(v.(string))
+		if v == nil {
+			list[i] = []byte("")
+		} else {
+			list[i] = []byte(v.(string))
+		}
+
 	}
 
 	return list, nil
 }
 func (p *Redis) Set(ctx context.Context, key string, val []byte) error {
-	_, err := p.rdb.Set(ctx, key, val, redisv8.KeepTTL).Result()
+	_, err := p.rdb.Set(ctx, key, val, 0).Result()
 	if err != nil {
 		return err
 	}
