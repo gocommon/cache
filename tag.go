@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+// Version implements Session.
+func (p *session) Version() (string, error) {
+	space, err := p.getNamespace()
+	if err != nil {
+		return "", err
+	}
+	return EncodeMD5(space), nil
+}
+
 // encodeItemKey real store key
 func (p *session) encodeItemKey(key string) (string, error) {
 	space, err := p.getNamespace()
