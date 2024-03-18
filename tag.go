@@ -15,16 +15,21 @@ func (p *session) Version() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	if len(space) == 0 {
+		return "", nil
+	}
 	return EncodeMD5(space), nil
 }
 
 // encodeItemKey real store key
-func (p *session) encodeItemKey(key string) (string, error) {
+func (p *session) encodeItemKey(key string) (enkey, version string, err error) {
 	space, err := p.getNamespace()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return EncodeMD5(space + key), nil
+
+	return EncodeMD5(space + key), EncodeMD5(space), nil
 }
 
 // getNamespace getNamespace

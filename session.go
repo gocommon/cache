@@ -18,16 +18,16 @@ type session struct {
 }
 
 // genKey 统一处理生成key, tag
-func (p *session) genKey(key string) (string, error) {
+func (p *session) genKey(key string) (enkey, version string, err error) {
 	if len(p.tags) > 0 {
-		k, err := p.encodeItemKey(key)
+		k, version, err := p.encodeItemKey(key)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
-		return p.keyWithPrefix(k), nil
+		return p.keyWithPrefix(k), version, nil
 	}
 
-	return p.keyWithPrefix(key), nil
+	return p.keyWithPrefix(key), "", nil
 
 }
 
@@ -36,19 +36,27 @@ func (c *session) keyWithPrefix(key string) string {
 }
 
 func (p *session) Get(key string, val interface{}) (has bool, err error) {
+	has, _, err = p.GetWithVersion(key, val)
+	return has, err
+}
 
-	rk, err := p.genKey(key)
+// GetWithVersion implements Session.
+func (p *session) GetWithVersion(key string, val interface{}) (has bool, version string, err error) {
+
+	var rk string
+
+	rk, version, err = p.genKey(key)
 	if err != nil {
-		return false, err
+		return false, version, err
 	}
 
 	src, err := p.opts.store.Get(p.ctx, rk)
 	if err != nil {
-		return false, err
+		return false, version, err
 	}
 
 	if len(src) == 0 {
-		return false, nil
+		return false, version, nil
 	}
 
 	d, unix := splitUnix(src)
@@ -62,10 +70,10 @@ func (p *session) Get(key string, val interface{}) (has bool, err error) {
 
 	if bytes.Contains(d, EmptyValue) {
 		// SetNil(val)
-		return true, nil
+		return true, version, nil
 	}
 
-	return true, p.opts.codec.Decode(d, val)
+	return true, version, p.opts.codec.Decode(d, val)
 }
 
 func (p *session) Set(key string, val interface{}) error {
@@ -84,7 +92,7 @@ func (p *session) Set(key string, val interface{}) error {
 	unix := time.Now().Unix()
 	d = joinUnix(d, unix)
 
-	rk, err := p.genKey(key)
+	rk, _, err := p.genKey(key)
 	if err != nil {
 		return err
 	}
@@ -93,7 +101,7 @@ func (p *session) Set(key string, val interface{}) error {
 }
 
 func (p *session) Del(key string) error {
-	rk, err := p.genKey(key)
+	rk, _, err := p.genKey(key)
 	if err != nil {
 		return err
 	}

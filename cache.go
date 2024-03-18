@@ -11,6 +11,7 @@ type Cacher interface {
 
 type Session interface {
 	Get(key string, val interface{}) (has bool, err error)
+	GetWithVersion(key string, val interface{}) (has bool, version string, err error)
 	Set(key string, val interface{}) error
 	Del(key string) error
 	// Version tag ver
