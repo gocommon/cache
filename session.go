@@ -77,13 +77,20 @@ func (p *session) GetWithVersion(key string, val interface{}) (has bool, version
 }
 
 func (p *session) Set(key string, val interface{}) error {
+	_, err := p.SetWithVersion(key, val)
+	return err
+}
+
+// SetWithVersion implements Session.
+func (p *session) SetWithVersion(key string, val interface{}) (version string, err error) {
+
 	d := EmptyValue
 
 	if !IsNil(val) {
 		var err error
 		d, err = p.opts.codec.Encode(val)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 	}
@@ -92,12 +99,12 @@ func (p *session) Set(key string, val interface{}) error {
 	unix := time.Now().Unix()
 	d = joinUnix(d, unix)
 
-	rk, _, err := p.genKey(key)
+	rk, version, err := p.genKey(key)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return p.opts.store.SetEx(p.ctx, rk, d, p.opts.ttl)
+	return version, p.opts.store.SetEx(p.ctx, rk, d, p.opts.ttl)
 }
 
 func (p *session) Del(key string) error {

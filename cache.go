@@ -13,6 +13,7 @@ type Session interface {
 	Get(key string, val interface{}) (has bool, err error)
 	GetWithVersion(key string, val interface{}) (has bool, version string, err error)
 	Set(key string, val interface{}) error
+	SetWithVersion(key string, val interface{}) (version string, err error)
 	Del(key string) error
 	// Version tag ver
 	Version() (string, error)
