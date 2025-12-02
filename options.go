@@ -1,9 +1,9 @@
 package cache
 
 import (
-	"github.com/gocommon/cache/v2/codec"
-	"github.com/gocommon/cache/v2/codec/gob"
-	"github.com/gocommon/cache/v2/store"
+	"github.com/gocommon/cache/codec"
+	"github.com/gocommon/cache/codec/gob"
+	"github.com/gocommon/cache/store"
 )
 
 // Options Options

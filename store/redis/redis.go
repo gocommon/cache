@@ -6,8 +6,8 @@ import (
 	"time"
 
 	redisv8 "github.com/go-redis/redis/v8"
-	xtime "github.com/gocommon/cache/v2/pkg/time"
-	"github.com/gocommon/cache/v2/store"
+	xtime "github.com/gocommon/cache/pkg/time"
+	"github.com/gocommon/cache/store"
 )
 
 var _ store.Store = (*Redis)(nil)

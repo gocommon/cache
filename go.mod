@@ -1,4 +1,4 @@
-module github.com/gocommon/cache/v2
+module github.com/gocommon/cache
 
 go 1.16
 

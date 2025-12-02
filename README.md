@@ -1,7 +1,7 @@
 # cache
 cache with tags write in GO
 
-go get github.com/gocommon/cache/v2
+go get github.com/gocommon/cache
 
 ## tag
 tag排序
