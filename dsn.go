@@ -245,11 +245,7 @@ func (c *CacheConfig) NewCache() (*Cache, error) {
 		WithTouchTTL(c.TouchTTL),
 	}
 
-	cache, err := New(options...)
-	if err != nil {
-		return nil, err
-	}
-	return cache, nil
+	return New(options...), nil
 }
 
 // String 返回DSN字符串表示
