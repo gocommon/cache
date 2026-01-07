@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/gocommon/cache/v2/store"
 	redisStore "github.com/gocommon/cache/v2/store/redis"
 )
 
@@ -32,7 +31,7 @@ type Cache struct {
 }
 
 // New New
-func New(opts ...Option) *Cache {
+func New(opts ...Option) (*Cache, error) {
 	options := &Options{}
 	for _, op := range opts {
 		op(options)
@@ -42,15 +41,14 @@ func New(opts ...Option) *Cache {
 
 	// 验证配置
 	if err := options.Validate(); err != nil {
-		// 如果配置无效，返回错误缓存
-		return &Cache{opts: &Options{store: store.NewErrStore(err)}}
+		return nil, err
 	}
 
 	c := &Cache{
 		opts: options,
 	}
 
-	return c
+	return c, nil
 }
 
 func (c *Cache) Tags(ctx context.Context, tags ...string) Session {
@@ -58,7 +56,7 @@ func (c *Cache) Tags(ctx context.Context, tags ...string) Session {
 }
 
 // NewMemoryCache 创建使用内存存储的缓存实例
-func NewMemoryCache(ttl int64, opts ...Option) *Cache {
+func NewMemoryCache(ttl int64, opts ...Option) (*Cache, error) {
 	options := []Option{
 		WithMemoryStore(),
 		WithTTL(ttl),
@@ -68,7 +66,7 @@ func NewMemoryCache(ttl int64, opts ...Option) *Cache {
 }
 
 // NewMemoryCacheWithCleanup 创建使用内存存储并指定清理间隔的缓存实例
-func NewMemoryCacheWithCleanup(ttl int64, cleanupInterval time.Duration, opts ...Option) *Cache {
+func NewMemoryCacheWithCleanup(ttl int64, cleanupInterval time.Duration, opts ...Option) (*Cache, error) {
 	options := []Option{
 		WithMemoryStoreWithCleanup(cleanupInterval),
 		WithTTL(ttl),
@@ -78,11 +76,28 @@ func NewMemoryCacheWithCleanup(ttl int64, cleanupInterval time.Duration, opts ..
 }
 
 // NewRedisCache 创建使用Redis存储的缓存实例
-func NewRedisCache(rdb redis.Cmdable, ttl int64, opts ...Option) *Cache {
+func NewRedisCache(rdb redis.Cmdable, ttl int64, opts ...Option) (*Cache, error) {
 	options := []Option{
 		WithStore(redisStore.NewRedis(rdb.(*redis.Client))),
 		WithTTL(ttl),
 	}
 	options = append(options, opts...)
 	return New(options...)
+}
+
+// NewFromDSN 从DSN字符串创建Cache实例
+//
+// 这是一个便捷方法，允许像MySQL连接一样用一行字符串创建缓存实例。
+//
+// 示例:
+//
+//	cache := cache.NewFromDSN("memory://?ttl=300&prefix=app:")
+//	cache := cache.NewFromDSN("redis://localhost:6379/0?ttl=3600&prefix=cache:")
+func NewFromDSN(dsn string) (*Cache, error) {
+	config, err := ParseDSN(dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	return config.NewCache()
 }

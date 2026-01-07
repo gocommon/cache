@@ -19,10 +19,13 @@ func TestMemoryCache_Example(t *testing.T) {
 	ctx := context.Background()
 
 	// 创建使用内存存储的缓存实例
-	c := cache.New(
+	c, err := cache.New(
 		cache.WithMemoryStore(),
 		cache.WithTTL(300), // 5分钟过期
 	)
+	if err != nil {
+		t.Fatalf("Failed to create cache: %v", err)
+	}
 
 	// 创建带标签的会话
 	session := c.Tags(ctx, "user", "123")
@@ -35,7 +38,7 @@ func TestMemoryCache_Example(t *testing.T) {
 	}
 
 	// 设置缓存
-	err := session.Set("profile", user)
+	err = session.Set("profile", user)
 	if err != nil {
 		t.Fatalf("Failed to set cache: %v", err)
 	}
@@ -62,15 +65,18 @@ func TestMemoryCache_WithExpiration(t *testing.T) {
 	ctx := context.Background()
 
 	// 创建内存缓存，设置短过期时间用于测试
-	c := cache.New(
+	c, err := cache.New(
 		cache.WithMemoryStore(),
 		cache.WithTTL(1), // 1秒过期
 	)
+	if err != nil {
+		t.Fatalf("Failed to create cache: %v", err)
+	}
 
 	session := c.Tags(ctx, "test", "expire")
 
 	// 设置缓存
-	err := session.Set("temp_data", "temporary value")
+	err = session.Set("temp_data", "temporary value")
 	if err != nil {
 		t.Fatalf("Failed to set cache: %v", err)
 	}
@@ -103,14 +109,17 @@ func TestMemoryCache_WithExpiration(t *testing.T) {
 func TestMemoryCache_TagFlush(t *testing.T) {
 	ctx := context.Background()
 
-	c := cache.New(cache.WithMemoryStore())
+	c, err := cache.New(cache.WithMemoryStore())
+	if err != nil {
+		t.Fatalf("Failed to create cache: %v", err)
+	}
 
 	// 创建两个不同标签的会话
 	userSession := c.Tags(ctx, "user", "123")
 	postSession := c.Tags(ctx, "post", "456")
 
 	// 设置用户数据
-	err := userSession.Set("profile", "user profile data")
+	err = userSession.Set("profile", "user profile data")
 	if err != nil {
 		t.Fatalf("Failed to set user cache: %v", err)
 	}

@@ -57,15 +57,20 @@ cache := cache.New(
 
 ## Usage
 
+### Basic Usage
+
 ```go
 // Create cache instance
-c := cache.New(cache.WithMemoryStore())
+c, err := cache.New(cache.WithMemoryStore())
+if err != nil {
+    log.Fatal(err)
+}
 
 // Create session with tags
 session := c.Tags(context.Background(), "user", "profile")
 
 // Set cache
-err := session.Set("user_data", userData)
+err = session.Set("user_data", userData)
 
 // Get cache
 var data UserData
@@ -73,6 +78,58 @@ has, err := session.Get("user_data", &data)
 
 // Flush by tags (invalidate related cache)
 err = session.Flush()
+```
+
+### DSN Usage (One-Line Configuration)
+
+Just like database connections, you can create cache instances using DSN strings:
+
+```go
+// Memory cache with custom settings
+cache, err := cache.NewFromDSN("memory://?ttl=300&prefix=myapp:&cleanup=30s")
+
+// Redis cache (automatically creates Redis client)
+cache, err := cache.NewFromDSN("redis://localhost:6379/0?ttl=3600&prefix=cache:")
+
+// Redis with authentication
+cache, err := cache.NewFromDSN("redis://user:pass@remote.host:6379/1?ttl=7200")
+
+// For advanced Redis configurations, use NewFromDSN with custom client creation
+```
+
+#### DSN Format
+
+```
+[store://][username[:password]@][address[:port]][/db][?query]
+```
+
+#### Supported Stores
+
+- **Memory**: `memory://`
+- **Redis**: `redis://`
+
+#### Query Parameters
+
+- `ttl`: Default cache TTL in seconds (default: 7200)
+- `prefix`: Key prefix (default: "tc.")
+- `tag_ttl`: Tag TTL in seconds, -1 for permanent (default: -1)
+- `touch_ttl`: Auto-touch TTL in seconds (default: 600)
+- `cleanup`: Memory cleanup interval (memory only, default: "1m")
+
+#### DSN Examples
+
+```go
+// Simple memory cache
+"memory://"
+
+// Memory with custom TTL and prefix
+"memory://?ttl=300&prefix=myapp:"
+
+// Redis basic
+"redis://localhost:6379/0"
+
+// Redis with auth and custom settings
+"redis://user:pass@remote.host:6379/1?ttl=3600&prefix=cache:&tag_ttl=7200"
 ```
 
 ## Tag System
