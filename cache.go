@@ -43,5 +43,5 @@ func New(opts ...Option) *Cache {
 }
 
 func (c *Cache) Tags(ctx context.Context, tags ...string) Session {
-	return &session{ctx: ctx, tags: tags, opts: c.opts}
+	return NewSession(ctx, tags, c.opts)
 }

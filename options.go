@@ -1,9 +1,26 @@
 package cache
 
 import (
+	"time"
+
 	"github.com/gocommon/cache/v2/codec"
 	"github.com/gocommon/cache/v2/codec/gob"
 	"github.com/gocommon/cache/v2/store"
+	"github.com/gocommon/cache/v2/store/memory"
+)
+
+const (
+	// DefaultTTL 默认缓存过期时间 (2小时)
+	DefaultTTL = 7200
+
+	// DefaultTagTTL 默认标签过期时间 (-1表示永久)
+	DefaultTagTTL = -1
+
+	// DefaultTouchTTL 默认自动续期时间 (10分钟)
+	DefaultTouchTTL = 600
+
+	// DefaultPrefix 默认key前缀
+	DefaultPrefix = "tc."
 )
 
 // Options Options
@@ -61,21 +78,35 @@ func WithCodec(c codec.Codec) Option {
 	}
 }
 
+// WithMemoryStore 使用内存存储
+func WithMemoryStore() Option {
+	return func(o *Options) {
+		o.store = memory.NewMemory()
+	}
+}
+
+// WithMemoryStoreWithCleanup 使用内存存储并指定清理间隔
+func WithMemoryStoreWithCleanup(cleanupInterval time.Duration) Option {
+	return func(o *Options) {
+		o.store = memory.NewMemoryWithCleanupInterval(cleanupInterval)
+	}
+}
+
 func defaultOptions(opts *Options) {
 	if opts.ttl == 0 {
-		opts.ttl = 7200
+		opts.ttl = DefaultTTL
 	}
 
 	if opts.tagTTL == 0 {
-		opts.tagTTL = -1
+		opts.tagTTL = DefaultTagTTL
 	}
 
 	if opts.touchTTL == 0 {
-		opts.touchTTL = 600
+		opts.touchTTL = DefaultTouchTTL
 	}
 
 	if len(opts.prefix) == 0 {
-		opts.prefix = "tc."
+		opts.prefix = DefaultPrefix
 	}
 
 	if opts.store == nil {

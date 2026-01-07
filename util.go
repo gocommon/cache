@@ -4,9 +4,18 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"reflect"
+	"strconv"
+
+	"github.com/cespare/xxhash/v2"
 )
 
-// EncodeMD5 EncodeMD5
+// EncodeHash 使用xxHash进行快速哈希计算
+func EncodeHash(str string) string {
+	h := xxhash.Sum64([]byte(str))
+	return strconv.FormatUint(h, 36)
+}
+
+// EncodeMD5 保持向后兼容的别名
 func EncodeMD5(str string) string {
 	h := md5.New()
 	h.Write([]byte(str))
@@ -24,7 +33,17 @@ func SetNil(i interface{}) {
 
 // IsNil IsNil
 func IsNil(i interface{}) bool {
-	return reflect.ValueOf(i).IsNil()
+	if i == nil {
+		return true
+	}
+	v := reflect.ValueOf(i)
+	k := v.Kind()
+	return (k == reflect.Chan ||
+		k == reflect.Func ||
+		k == reflect.Interface ||
+		k == reflect.Map ||
+		k == reflect.Ptr ||
+		k == reflect.Slice) && v.IsNil()
 }
 
 // Uint64ToBytes Uint64ToBytes bigEndian

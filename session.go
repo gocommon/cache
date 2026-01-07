@@ -3,18 +3,48 @@ package cache
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
+	"sort"
+	"strconv"
+	"strings"
 	"time"
 )
 
-// EmptyValue EmptyValue
-var EmptyValue = []byte("##empty- -!##")
+const (
+	// EmptyValue 表示空值的标记
+	EmptyValueStr = "##empty- -!##"
+
+	// 时间戳分隔符长度 (1字节 '@' + 8字节 uint64)
+	TimestampSuffixLength = 9
+
+	// 时间戳分隔符
+	TimestampSeparator = '@'
+
+	// TagKey分隔符
+	TagKeySeparator = ".tagid:"
+)
+
+var EmptyValue = []byte(EmptyValueStr)
 
 var _ Session = (*session)(nil)
 
 type session struct {
-	ctx  context.Context
-	tags []string
-	opts *Options
+	ctx        context.Context
+	tags       []string
+	opts       *Options
+	tagsSorted bool
+}
+
+func NewSession(ctx context.Context, tags []string, opts *Options) *session {
+
+	tagsSorted := false
+	if len(tags) > 0 {
+		sort.Strings(tags)
+		tagsSorted = true
+	}
+
+	return &session{ctx: ctx, tags: tags, opts: opts, tagsSorted: tagsSorted}
 }
 
 // genKey 统一处理生成key, tag
@@ -121,10 +151,10 @@ func (p *session) Flush() error {
 }
 
 func splitUnix(src []byte) (data []byte, unix int64) {
-	idx := len(src) - 9
+	idx := len(src) - TimestampSuffixLength
 
 	flag := src[idx : idx+1]
-	if idx < 0 || flag[0] != '@' {
+	if idx < 0 || flag[0] != TimestampSeparator {
 		return src, 0
 	}
 
@@ -134,8 +164,111 @@ func splitUnix(src []byte) (data []byte, unix int64) {
 
 func joinUnix(data []byte, unix int64) []byte {
 	buf := bytes.NewBuffer(data)
-	buf.WriteByte(byte('@'))
+	buf.WriteByte(TimestampSeparator)
 	buf.Write(Uint64ToBytes(uint64(unix)))
 
 	return buf.Bytes()
+}
+
+// Version implements Session.
+func (p *session) Version() (string, error) {
+	space, err := p.getNamespace()
+	if err != nil {
+		return "", err
+	}
+
+	if len(space) == 0 {
+		return "", nil
+	}
+	return EncodeHash(space), nil
+}
+
+// encodeItemKey real store key
+func (p *session) encodeItemKey(key string) (enkey, version string, err error) {
+	space, err := p.getNamespace()
+	if err != nil {
+		return "", "", err
+	}
+
+	return key + "." + EncodeHash(space), EncodeHash(space), nil
+}
+
+// getNamespace getNamespace
+func (p *session) getNamespace() (string, error) {
+	ids, err := p.getOrCreateTagIDs()
+	if err != nil {
+		return "", err
+	}
+	if len(ids) == 0 {
+		return "", nil
+	}
+
+	return strings.Join(ids, "|"), nil
+}
+
+// getOrCreateTagIDs 取tag对应的值
+func (p *session) getOrCreateTagIDs() ([]string, error) {
+	l := len(p.tags)
+	if l == 0 {
+		return nil, nil
+	}
+
+	//  排序
+	if !p.tagsSorted {
+		sort.Strings(p.tags)
+		p.tagsSorted = true
+	}
+
+	ids := make([]string, l)
+
+	getTags := make([]string, len(p.tags))
+	for k, v := range p.tags {
+		getTags[k] = p.newTagKey(v)
+	}
+
+	vals, err := p.opts.store.MGet(p.ctx, getTags)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(vals) != l {
+		return nil, errors.New("store.MGet not align")
+	}
+
+	for i, val := range vals {
+		if len(val) == 0 {
+			tid, err := p.setTag(p.tags[i])
+			if err != nil {
+				return nil, err
+			}
+			ids[i] = tid
+		} else {
+			ids[i] = string(val)
+		}
+	}
+
+	return ids, nil
+}
+
+// setTag 更新tag的值
+func (p *session) setTag(tag string) (string, error) {
+	ver := strconv.FormatInt(time.Now().UnixNano(), 36)
+	if p.opts.tagTTL > 0 {
+		err := p.opts.store.SetEx(p.ctx, p.newTagKey(tag), []byte(ver), p.opts.tagTTL)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		err := p.opts.store.Set(p.ctx, p.newTagKey(tag), []byte(ver))
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return ver, nil
+}
+
+// TagKey 拼接tagkey,添加前缀
+func (p *session) newTagKey(tag string) string {
+	return fmt.Sprintf("%s%s%s", p.opts.prefix, TagKeySeparator, tag)
 }
