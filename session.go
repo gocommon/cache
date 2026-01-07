@@ -3,7 +3,6 @@ package cache
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -190,7 +189,8 @@ func (p *session) encodeItemKey(key string) (enkey, version string, err error) {
 		return "", "", err
 	}
 
-	return key + "." + EncodeHash(space), EncodeHash(space), nil
+	hash := EncodeHash(space)
+	return key + "." + hash, hash, nil
 }
 
 // getNamespace getNamespace
@@ -203,7 +203,12 @@ func (p *session) getNamespace() (string, error) {
 		return "", nil
 	}
 
-	return strings.Join(ids, "|"), nil
+	namespace := strings.Join(ids, "|")
+	if namespace == "" {
+		return "", NewCacheError(ErrCodeTagError, ErrMsgNamespaceEmpty)
+	}
+
+	return namespace, nil
 }
 
 // getOrCreateTagIDs 取tag对应的值
@@ -232,7 +237,7 @@ func (p *session) getOrCreateTagIDs() ([]string, error) {
 	}
 
 	if len(vals) != l {
-		return nil, errors.New("store.MGet not align")
+		return nil, NewCacheError(ErrCodeStoreError, ErrMsgStoreMisaligned)
 	}
 
 	for i, val := range vals {

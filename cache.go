@@ -2,6 +2,11 @@ package cache
 
 import (
 	"context"
+	"time"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/gocommon/cache/v2/store"
+	redisStore "github.com/gocommon/cache/v2/store/redis"
 )
 
 // Cacher Cacher
@@ -35,6 +40,12 @@ func New(opts ...Option) *Cache {
 
 	defaultOptions(options)
 
+	// 验证配置
+	if err := options.Validate(); err != nil {
+		// 如果配置无效，返回错误缓存
+		return &Cache{opts: &Options{store: store.NewErrStore(err)}}
+	}
+
 	c := &Cache{
 		opts: options,
 	}
@@ -44,4 +55,34 @@ func New(opts ...Option) *Cache {
 
 func (c *Cache) Tags(ctx context.Context, tags ...string) Session {
 	return NewSession(ctx, tags, c.opts)
+}
+
+// NewMemoryCache 创建使用内存存储的缓存实例
+func NewMemoryCache(ttl int64, opts ...Option) *Cache {
+	options := []Option{
+		WithMemoryStore(),
+		WithTTL(ttl),
+	}
+	options = append(options, opts...)
+	return New(options...)
+}
+
+// NewMemoryCacheWithCleanup 创建使用内存存储并指定清理间隔的缓存实例
+func NewMemoryCacheWithCleanup(ttl int64, cleanupInterval time.Duration, opts ...Option) *Cache {
+	options := []Option{
+		WithMemoryStoreWithCleanup(cleanupInterval),
+		WithTTL(ttl),
+	}
+	options = append(options, opts...)
+	return New(options...)
+}
+
+// NewRedisCache 创建使用Redis存储的缓存实例
+func NewRedisCache(rdb redis.Cmdable, ttl int64, opts ...Option) *Cache {
+	options := []Option{
+		WithStore(redisStore.NewRedis(rdb.(*redis.Client))),
+		WithTTL(ttl),
+	}
+	options = append(options, opts...)
+	return New(options...)
 }

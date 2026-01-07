@@ -118,3 +118,20 @@ func defaultOptions(opts *Options) {
 	}
 
 }
+
+// Validate 验证配置的有效性
+func (o *Options) Validate() error {
+	if o.ttl < 0 {
+		return NewCacheError(ErrCodeValidationError, ErrMsgInvalidTTL)
+	}
+	if o.tagTTL < 0 && o.tagTTL != -1 {
+		return NewCacheError(ErrCodeValidationError, "tagTTL must be non-negative or -1")
+	}
+	if o.touchTTL < 0 {
+		return NewCacheError(ErrCodeValidationError, "touchTTL must be non-negative")
+	}
+	if o.store == nil {
+		return NewCacheError(ErrCodeValidationError, ErrMsgStoreRequired)
+	}
+	return nil
+}
