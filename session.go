@@ -46,6 +46,14 @@ func NewSession(ctx context.Context, tags []string, opts *Options) *session {
 	return &session{ctx: ctx, tags: tags, opts: opts, tagsSorted: tagsSorted}
 }
 
+func (p *session) KeyVersion(key string) (string, string, error) {
+	k, version, err := p.genKey(key)
+	if err != nil {
+		return "", "", err
+	}
+	return k, version, nil
+}
+
 // genKey 统一处理生成key, tag
 func (p *session) genKey(key string) (enkey, version string, err error) {
 	if len(p.tags) > 0 {

@@ -22,6 +22,7 @@ type Session interface {
 	// Version tag ver
 	Version() (string, error)
 	Flush() error
+	KeyVersion(key string) (string, string, error)
 }
 
 var _ Cacher = &Cache{}

@@ -126,3 +126,8 @@ func (s *errSession) Version() (string, error) {
 func (s *errSession) Flush() error {
 	return s.err
 }
+
+// KeyVersion 始终返回空字符串和错误。
+func (s *errSession) KeyVersion(key string) (string, string, error) {
+	return "", "", s.err
+}
